@@ -1,5 +1,3 @@
-deleting still may be broken due to folding.  What about heirarchy base deleting?
-
 Is it useful to move something up or down in a way that re-parents it?  Yeah I think it's useful.  Lets do it.
 
 needs some global actions, outside the text boxes
@@ -7,7 +5,12 @@ needs some global actions, outside the text boxes
 
 this autogrow library stinks: it's ignoring my options, and it only grows every few miliseconds.  Why not check on keystrokes?  You'd need to keep it from over-animating, but still, shouldn't be too hard to do with this for reference.  I want it to act differently anyway: I don't want it to leave extra space for writing!  It should wrap tightly.
   
-when I add folding, add ".visible" to the indent/etc selectors
-
 Perhaps I could make a keystroke editor eventually...
 
+Persistence: cookies, gears, web =]
+
+Perhaps have a 'force sync' button to sync to the web
+
+If delete_reparent is useful, find a way to undo it gracefully.  It's so destructive!
+
+Gotta find a clean way to undo the special case last item delete -- should just recreate an item automatically or something...
