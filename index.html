@@ -10,6 +10,8 @@
 textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
   font-family:inherit; font-size:inherit; margin:0; max-width:500pt;}
 li {display:block;}
+
+.controls {-webkit-column-width:15em;}
 </style>
 
 <script src="jquery-1.3.2.js"></script>
@@ -17,7 +19,7 @@ li {display:block;}
 <script type="text/javascript">
 var keys = {enter:13, tab:9, up:38, down:40, del:8}
 $(document).ready(function(){
-    
+       
   function create_item(insert){
     var node = $('.item.prototype').clone().removeClass('prototype')
     insert(node)
@@ -41,6 +43,10 @@ $(document).ready(function(){
     }
   }
 
+  function focus_item(item){
+    return item.find('.title:first').focus()
+  }
+
   function focus_prev(item){
     var prev = item.prev('.item:first') // find prev sibling
      if (prev.length) {
@@ -50,11 +56,7 @@ $(document).ready(function(){
        prev = item.parents('.item:first') // settle for own parent
      }
      return focus_item(prev)
-  }
-  
-  function focus_item(item){
-    return item.find('.title:first').focus()
-  }
+  }  
   
   function focus_next(item){
     var next = item.find('.item:first') // prefer first child
@@ -73,10 +75,28 @@ $(document).ready(function(){
     }
     return focus_item(next)    
   }
+    
+  function move_up(item){
+    item.prev().before(item)
+    focus_item(item)
+  }
+
+  function move_down(item){
+    item.next().after(item)
+    focus_item(item)
+  }
+  
+  function delete_item(item){
+    event.preventDefault()
+    if (focus_prev(item).length || focus_next(item).length){
+      item.remove()
+    } else {
+      item.find('.title, .note').val('') // can't delete last node
+    }
+  }
 
   function note_keydown(event){
     if(event.which == keys.enter && event.shiftKey){
-      event.preventDefault()
       var item = $(this).parents('.item:first')
       item.find('.title').focus()
     }
@@ -88,21 +108,29 @@ $(document).ready(function(){
     // console.debug(event.which)
     if(event.which == keys.enter){
       event.preventDefault()
-      if (!event.shiftKey) create_item(function(node){ item.after(node) })
-      else                 item.find('.note').focus()
+      if (!event.shiftKey)      create_item(function(node){ item.after(node) })
+      else                      item.find('.note').focus()
 
     } else if (event.which == keys.tab){
       event.preventDefault()
-      if (!event.shiftKey) indent(item)
-      else                 dedent(item)
+      if (!event.shiftKey)      indent(item)
+      else                      dedent(item)
 
-    } else if (event.which == keys.up)   focus_prev(item)
-      else if (event.which == keys.down) focus_next(item)
+    } else if (event.which == keys.up){
+      if (event.shiftKey)       move_up(item)
+      else if (event.altKey)    focus_item(item.prev())
+      else                      focus_prev(item)
 
-      else if (event.which == keys.del && $(this).val() == ""){
-        if (focus_prev(item).length || focus_next(item).length) item.remove()
-      }
+    } else if (event.which == keys.down){
+        if (event.shiftKey)     move_down(item)
+        else if (event.altKey)  focus_item(item.next())
+        else                    focus_next(item)
+    } 
 
+    else if (event.which == keys.del && ($(this).val() == "" || event.ctrlKey)) {
+      event.preventDefault()
+      delete_item(item)
+    }
   }
 
 
@@ -114,7 +142,16 @@ $(document).ready(function(){
 
 
 </head><body>
-<h1>Outlines</h1>
+  <ul class="controls">
+    <li>Enter: New Sibling.
+    <li>Shift+Enter: Edit Note/Title Part.
+    <li>Tab: Indent.
+    <li>Shift+Tab: Dedent.
+    <li>Up/Down: Navigate Tree.
+    <li>Shift+Up/Down: Move Sibling.
+    <li>Alt+Up/Down: Navigate Siblings.
+    <li>Ctrl-Backspace: Delete.
+  </ul>
 <!-- <div class="notify"></div> -->
 
 <ul class="outlines">
