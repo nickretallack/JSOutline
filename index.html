@@ -3,13 +3,13 @@
 <!-- <link rel="stylesheet" href="common.css"> -->
 <style type="text/css">
 .outlines {position:relative;}
-.prototype {display:none;}
-.item {margin:1ex;}
+.prototype {display:none !important;}
+.item {margin:1ex 0 1ex; display:block;}
 .title {font-weight:bold; height:1em;}
 .note { height:1em; font-size:.8em; border-top:0;}
 textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
   font-family:inherit; font-size:inherit; margin:0; max-width:500pt;}
-li {display:block;}
+
 
 .folded .contents {display:none;}
 .folded {border-bottom:1px dashed gray; padding-bottom:2px; }
@@ -58,13 +58,21 @@ $(document).ready(function(){
   function focus_prev(item){
     var prev = item.prev('.item:first') // find prev sibling
     if (prev.length) {
-      var child = prev.find('.item:last') // prefer sibling's last x-child
-      if (child.length && !prev.hasClass('folded')) prev = child
-    } else {
+      while (true){
+        if (prev.hasClass('folded')) break
+        var child = prev.find('.contents:first > .item:last')
+        if (!child.length) break // give up
+        prev = child
+      }
+      // // oh crap, still folding issues here.
+      // var child = prev.find('.item:last') // prefer sibling's last x-child
+      // if (child.length && !prev.hasClass('folded')) prev = child
+    }
+    if (!prev.length){
       prev = item.parents('.item:first') // settle for own parent
     }
     return focus_item(prev)
-  }  
+  }
   
   function focus_next(item){
     var next
@@ -138,11 +146,13 @@ $(document).ready(function(){
       else                      dedent(item)
 
     } else if (event.which == keys.up){
+      event.preventDefault()
       if      (event.shiftKey)  move_up(item)
       else if (event.altKey)    focus_item(item.prev())
       else                      focus_prev(item)
 
     } else if (event.which == keys.down){
+      event.preventDefault()
       if      (event.shiftKey)  move_down(item)
       else if (event.altKey)    focus_item(item.next())
       else                      focus_next(item)
