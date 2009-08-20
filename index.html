@@ -2,16 +2,76 @@
 <html><head><title>Super Outliner</title>
 <!-- <link rel="stylesheet" href="common.css"> -->
 <style type="text/css">
+.outlines {position:relative;}
 .prototype {display:none;}
-input, textarea {border:1px solid lightgrey; display:block;}
+input {font-weight:bold;}
+input, textarea {border:none; display:block; width:100%;
+  font-family:inherit; font-size:inherit; overflow:visible; line-height:1em;}
+textarea {min-height:2.5em; max-width:100ex;}
 li {display:block;}
 </style>
 
 <script src="jquery-1.3.2.js"></script>
+<script src="jquery.autogrow.js"></script>
 <script type="text/javascript">
 var keys = {enter:13, tab:9, up:38, down:40}
 $(document).ready(function(){
+  // TODO: needs some global actions, outside the text boxes
+    
+  function create_item(insert){
+    var node = $('.item.prototype').clone().removeClass('prototype')
+    insert(node)
+    node.find('.note').keydown(note_keydown).autogrow()
+    node.find('.title').keydown(title_keydown).focus()    
+  }
+
+  function indent(item){
+    var prev = item.prev()
+    if (prev.length){
+      item.appendTo(prev.find('.contents:first'))
+      item.find('input:first').focus()
+    }
+  }
   
+  function dedent(item){
+    var parent = item.parents('.item:first')
+    if (parent.length){
+      parent.after(item)
+      item.find('input:first').focus()
+    }
+  }
+
+  // TODO: perhaps hitting these keys while nothing is selected should select the first or last item?
+  // TODO: when I add folding, add ".visible" to these selectors
+  function focus_prev(item){
+    var prev = item.prev('.item:first') // find prev sibling
+     if (prev.length) {
+       var child = prev.find('.item:last') // prefer sibling's last x-child
+       if (child.length) prev = child
+     } else {
+       prev = item.parents('.item:first') // settle for own parent
+     }
+     prev.find('input:first').focus()
+  }
+  
+  function focus_next(item){
+    var next = item.find('.item:first') // prefer first child
+    if (!next.length) next = item.next() // settle for next sibling
+    if (!next.length) { // settle for x-parent's next sibling
+      next = item
+      while (true){
+        next = next.parents('.item:first')
+        if (!next.length) break // no solution
+        var neighbor = next.next()
+        if (neighbor.length){
+          next = neighbor // found it
+          break
+        }
+      }
+    }
+    next.find('input:first').focus()    
+  }
+
   function note_keydown(event){
     if(event.which == keys.enter && event.shiftKey){
       event.preventDefault()
@@ -19,74 +79,26 @@ $(document).ready(function(){
       item.find('.title').focus()
     }
   }
-  
-  function create_item(insert){
-    var node = $('.item.prototype').clone().removeClass('prototype')
-    insert(node)
-    node.find('.note').keydown(note_keydown)
-    node.find('.title').keydown(title_keydown).focus()    
-  }
-    
+
   function title_keydown(event){
     var item = $(this).parents('.item:first')
 
     if(event.which == keys.enter){
       event.preventDefault()
-      if (!event.shiftKey) { // NEW
-        create_item(function(node){ item.after(node) })
-      } else {
-        item.find('.note').focus()
-      }
+      if (!event.shiftKey) create_item(function(node){ item.after(node) })
+      else                 item.find('.note').focus()
 
     } else if (event.which == keys.tab){
       event.preventDefault()
-      if (!event.shiftKey){ // INDENT
-        var prev = item.prev()
-        if (prev.length){
-          item.appendTo(prev.find('.contents:first'))
-          item.find('input:first').focus()
-        }        
-      } else { // DEDENT
-        var parent = item.parents('.item:first')
-        if (parent.length){
-          parent.after(item)
-          item.find('input:first').focus()
-        }
-      }      
+      if (!event.shiftKey) indent(item)
+      else                 dedent(item)
 
-    // TODO: when I add folding, add ".visible" to these selectors
-    } else if (event.which == keys.up){ // PREV
-      var prev = item.prev('.item:first') // find prev sibling
-      if (prev.length) {
-        var child = prev.find('.item:last') // prefer sibling's last x-child
-        if (child.length) prev = child
-      } else {
-        prev = item.parents('.item:first') // settle for own parent
-      }
-      prev.find('input:first').focus()
-
-    } else if (event.which == keys.down){ // NEXT
-      var next = item.find('.item:first') // prefer first child
-      if (!next.length) next = item.next() // settle for next sibling
-      if (!next.length) { // settle for x-parent's next sibling
-        next = item
-        while (true){
-          next = next.parents('.item:first')
-          if (!next.length) break // no solution
-          var neighbor = next.next()
-          if (neighbor.length){
-            next = neighbor // found it
-            break
-          }
-        }
-      }
-      next.find('input:first').focus()
-    }
+    } else if (event.which == keys.up)   focus_prev(item)
+      else if (event.which == keys.down) focus_next(item)
   }
 
   create_item(function(node){ node.prependTo('.outlines') })
-
-  
+  // hmm, what about deleting items?  
 })
 </script>
 
