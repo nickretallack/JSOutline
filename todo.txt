@@ -1,5 +1,3 @@
-Is it useful to move something up or down in a way that re-parents it?  Yeah I think it's useful.  Lets do it.
-
 needs some global actions, outside the text boxes
   perhaps hitting next/prev while nothing is selected should select the first or last item
 
@@ -10,7 +8,9 @@ Perhaps I could make a keystroke editor eventually...
 Persistence: cookies, gears, web =]
 
 Perhaps have a 'force sync' button to sync to the web
+Premium account = sync to web
 
 If delete_reparent is useful, find a way to undo it gracefully.  It's so destructive!
 
-Gotta find a clean way to undo the special case last item delete -- should just recreate an item automatically or something...
+Is it useful to move something up or down in a way that re-parents it?  Kinda sorta.
+

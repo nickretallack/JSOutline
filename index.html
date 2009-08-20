@@ -35,15 +35,27 @@ $(document).ready(function(){
   
   function create_history_item(data){
     events.push(data)
+    console.debug(events)
     if (!history_event) undone_events = []
     // Doing real events destroys undone events. How sad.
+  }
+  
+  function changed_text(event){
+    var field = $(this)
+    var old_text = field.attr("data-text")
+    var new_text = field.val()
+    if (old_text != new_text){
+      field.attr("data-text", new_text)
+      create_history_item({type:'change', field:field, old_text:old_text, new_text:new_text})      
+    }
   }
   
   function create_item(insert){
     var node = $('.item.prototype').clone().removeClass('prototype')
     insert(node)
-    node.find('.note').keydown(note_keydown).autogrow({extraSpace:100})
-    node.find('.title').keydown(title_keydown).focus()
+    $(':focus').blur()
+    node.find('.note').keydown(note_keydown).change(changed_text).autogrow({extraSpace:100}).blur(changed_text)
+    node.find('.title').keydown(title_keydown).focus().blur(changed_text)
     create_history_item({type:'create', item:node})
     return false
   }
@@ -67,6 +79,7 @@ $(document).ready(function(){
   }
 
   function focus_item(item){
+    if (item.length) $(':focus').blur()
     return item.find('.title:first').focus()
   }
 
@@ -168,13 +181,14 @@ $(document).ready(function(){
   }
 
   function toggle_fold_item(item){
-    if (item.hasClass('folded'))  unfold(item)
-    else                          fold(item)
+    if (item.find('.item').length){
+      if (item.hasClass('folded'))  unfold(item)
+      else                          fold(item)
+    }
   }
 
   function note_keydown(event){
     if(event.which == keys.enter){
-      event.stopPropagation()
       if (event.shiftKey){
         stop(event)
         var item = $(this).parents('.item:first')
@@ -188,7 +202,10 @@ $(document).ready(function(){
 
     if(event.which == keys.enter){
       stop(event)
-      if      (event.shiftKey)  return item.find('.note').focus()
+      if      (event.shiftKey)  {
+        $(':focus').blur()
+        item.find('.note').focus()
+      } 
       else if (event.altKey)    return toggle_fold_item(item)
       else                      return create_item(function(node){ item.after(node) })
 
@@ -227,23 +244,20 @@ $(document).ready(function(){
   
   function stop(event){
     event.preventDefault()
-    event.stopPropagation()
+    // event.stopPropagation()
   }
   
   function window_keydown(event){
-    // console.debug(event.which)
-
     if (event.which == keys.enter){
+      if ($(':focus').length) return // only act when nothing is focused
       stop(event)
       create_item(function(item){ item.appendTo($('.outlines')) })
-    }
     
-    if (event.which == keys.left && event.altKey) {
+    } else if (event.which == keys.left && event.altKey) {
       stop(event)
       return undo()
-    }
     
-    if (event.which == keys.right && event.altKey) {
+    } else if (event.which == keys.right && event.altKey) {
       stop(event)
       return redo()
     }
@@ -264,17 +278,28 @@ $(document).ready(function(){
         if (data.prev.length) data.prev.after(data.item)
         else data.parent.prepend(data.item)
         focus_item(data.item)
-        events.push({type:'create', item:data.item})
+        create_history_item({type:'create', item:data.item})
       },
     delete_rebase:function(data){
       
     },
     delete_reparent:function(data){
       // damn, this one might be difficult
+    },
+    change: function(data){
+      data.field.val(data.old_text)
+      data.field.attr('data-text', data.old_text)
+      create_history_item({type:'change', field:data.field, old_text:data.new_text, new_text:data.old_text})
     }
   }
   
   function undo(){
+    // quick hack for text editing
+    var item = $(':focus')
+    item.blur()
+    item.focus()
+    
+    
     if (events.length) {
       history_event = true
       var event = events.pop()
@@ -326,8 +351,8 @@ $(document).ready(function(){
 </ul>
 
 <li class="item prototype">
-  <textarea class="title"></textarea>
-  <textarea class="note"></textarea>
+  <textarea class="title" data-text=""></textarea>
+  <textarea class="note" data-text=""></textarea>
   <ul class="contents"></ul>
 </li>
 
