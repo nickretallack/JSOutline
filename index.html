@@ -109,10 +109,13 @@ $(document).ready(function(){
   
   function delete_item(item){
     event.preventDefault()
-    if (focus_prev(item).length || focus_next(item).length){
+    if (focus_prev(item).length || focus_item(item.next()).length){
       item.remove()
-    } else {
-      item.find('.title, .note').val('') // can't delete last node
+    } else {  // can't delete last node
+      item.find('.title, .note').val('')
+      item.find('.item').remove()
+      item.removeClass('folded')
+      // should reall get rid of this special case and just do a re-create node if necessary...
     }
   }
 

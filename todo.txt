@@ -1,6 +1,6 @@
-Is it useful to move something up or down in a way that re-parents it?  Yeah I think it's useful.  Lets do it.
+deleting still may be broken due to folding.  What about heirarchy base deleting?
 
-Try some stylish rounded corners?
+Is it useful to move something up or down in a way that re-parents it?  Yeah I think it's useful.  Lets do it.
 
 needs some global actions, outside the text boxes
   perhaps hitting next/prev while nothing is selected should select the first or last item
