@@ -35,7 +35,7 @@ $(document).ready(function(){
   
   function create_history_item(data){
     events.push(data)
-    console.debug(events)
+    // $('.output').text(data.toSource())
     if (!history_event) undone_events = []
     // Doing real events destroys undone events. How sad.
   }
@@ -244,6 +244,7 @@ $(document).ready(function(){
   
   function stop(event){
     event.preventDefault()
+    faniggle_text()
     // event.stopPropagation()
   }
   
@@ -289,16 +290,20 @@ $(document).ready(function(){
     change: function(data){
       data.field.val(data.old_text)
       data.field.attr('data-text', data.old_text)
+      data.field.focus()
       create_history_item({type:'change', field:data.field, old_text:data.new_text, new_text:data.old_text})
     }
   }
   
+  function faniggle_text(){
+    var field = $(':focus')
+    field.blur()
+    field.focus()
+  }
+  
   function undo(){
     // quick hack for text editing
-    var item = $(':focus')
-    item.blur()
-    item.focus()
-    
+    faniggle_text()    
     
     if (events.length) {
       history_event = true
@@ -342,6 +347,9 @@ $(document).ready(function(){
     <li>Alt+Left/Right: Undo/Redo
   </ul>
 <!-- <div class="notify"></div> -->
+
+<div class="output">
+  </div>
 
 <ul class="outlines contents">
   
