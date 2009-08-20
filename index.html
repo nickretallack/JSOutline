@@ -3,20 +3,40 @@
 <!-- <link rel="stylesheet" href="common.css"> -->
 <style type="text/css">
 .prototype {display:none;}
+input, textarea {border:1px solid lightgrey; display:block;}
+li {display:block;}
 </style>
 
 <script src="jquery-1.3.2.js"></script>
 <script type="text/javascript">
 var keys = {enter:13, tab:9, up:38, down:40}
 $(document).ready(function(){
-  var counter = 1
-  function create(event){
+  
+  function note_keydown(event){
+    if(event.which == keys.enter && event.shiftKey){
+      event.preventDefault()
+      var item = $(this).parents('.item:first')
+      item.find('.title').focus()
+    }
+  }
+  
+  function create_item(insert){
+    var node = $('.item.prototype').clone().removeClass('prototype')
+    insert(node)
+    node.find('.note').keydown(note_keydown)
+    node.find('.title').keydown(title_keydown).focus()    
+  }
+    
+  function title_keydown(event){
     var item = $(this).parents('.item:first')
 
-    if(event.which == keys.enter){ // NEW
-      var node = $('.item.prototype').clone().removeClass('prototype')
-      item.after(node)
-      node.find('input').keydown(create).focus()
+    if(event.which == keys.enter){
+      event.preventDefault()
+      if (!event.shiftKey) { // NEW
+        create_item(function(node){ item.after(node) })
+      } else {
+        item.find('.note').focus()
+      }
 
     } else if (event.which == keys.tab){
       event.preventDefault()
@@ -63,8 +83,8 @@ $(document).ready(function(){
       next.find('input:first').focus()
     }
   }
-  
-  $('.item.prototype').clone().removeClass('prototype').prependTo('.outlines').find('input').focus().keydown(create)
+
+  create_item(function(node){ node.prependTo('.outlines') })
 
   
 })
@@ -80,7 +100,8 @@ $(document).ready(function(){
 </ul>
 
 <li class="item prototype" data-indents="0">
-  <input type="text" />
+  <input type="text" class="title"/>
+  <textarea class="note"></textarea>
   <ul class="contents"></ul>
 </li>
 
