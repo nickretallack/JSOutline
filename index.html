@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><title>Super Outliner</title>
+<!-- <link rel="stylesheet" href="common.css"> -->
+<style type="text/css">
+.prototype {display:none;}
+</style>
+
+<script src="jquery-1.3.2.js"></script>
+<script type="text/javascript">
+var keys = {enter:13, tab:9, up:38, down:40}
+$(document).ready(function(){
+  function create(event){
+    var item = $(this).parents('.item')
+    console.debug(item.get())
+    if(event.which == keys.enter){
+      var node = $('.item.prototype').clone().removeClass('prototype')
+      item.after(node)
+      node.find('input').keydown(create).focus()
+    } else if (event.which == keys.tab){
+      var indents = parseInt(item.attr('data-indents'))
+      if (event.shiftKey) {
+        if (indents > 0) indents -= 1
+      } else             indents += 1
+      item.attr('data-indents',indents).css('margin-left', (indents*5) + 'ex')
+      event.preventDefault()
+    } else if (event.which == keys.up){
+      item.prev().find('input').focus()
+    } else if (event.which == keys.down){
+      item.next().find('input').focus()
+    }
+  }
+  
+  $('.item.prototype').clone().removeClass('prototype').prependTo('.outlines').find('input').focus().keydown(create)
+
+  
+  
+})
+</script>
+
+
+</head><body>
+<h1>Outlines</h1>
+<!-- <div class="notify"></div> -->
+
+<div class="outlines">
+  
+</div>
+
+<div class="item prototype" data-indents="0">
+  <input type="text" />  
+</div>
+
+</body></html>
