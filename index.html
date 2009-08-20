@@ -9,30 +9,63 @@
 <script type="text/javascript">
 var keys = {enter:13, tab:9, up:38, down:40}
 $(document).ready(function(){
+  var counter = 1
   function create(event){
-    var item = $(this).parents('.item')
-    console.debug(item.get())
-    if(event.which == keys.enter){
+    var item = $(this).parents('.item:first')
+
+    if(event.which == keys.enter){ // NEW
       var node = $('.item.prototype').clone().removeClass('prototype')
       item.after(node)
       node.find('input').keydown(create).focus()
+
     } else if (event.which == keys.tab){
-      var indents = parseInt(item.attr('data-indents'))
-      if (event.shiftKey) {
-        if (indents > 0) indents -= 1
-      } else             indents += 1
-      item.attr('data-indents',indents).css('margin-left', (indents*5) + 'ex')
       event.preventDefault()
-    } else if (event.which == keys.up){
-      item.prev().find('input').focus()
-    } else if (event.which == keys.down){
-      item.next().find('input').focus()
+      if (!event.shiftKey){ // INDENT
+        var prev = item.prev()
+        if (prev.length){
+          item.appendTo(prev.find('.contents:first'))
+          item.find('input:first').focus()
+        }        
+      } else { // DEDENT
+        var parent = item.parents('.item:first')
+        if (parent.length){
+          parent.after(item)
+          item.find('input:first').focus()
+        }
+      }      
+
+    // TODO: when I add folding, add ".visible" to these selectors
+    } else if (event.which == keys.up){ // PREV
+      var prev = item.prev('.item:first') // find prev sibling
+      if (prev.length) {
+        var child = prev.find('.item:last') // prefer sibling's last x-child
+        if (child.length) prev = child
+      } else {
+        prev = item.parents('.item:first') // settle for own parent
+      }
+      prev.find('input:first').focus()
+
+    } else if (event.which == keys.down){ // NEXT
+      var next = item.find('.item:first') // prefer first child
+      if (!next.length) next = item.next() // settle for next sibling
+      if (!next.length) { // settle for x-parent's next sibling
+        next = item
+        while (true){
+          next = next.parents('.item:first')
+          if (!next.length) break // no solution
+          var neighbor = next.next()
+          if (neighbor.length){
+            next = neighbor // found it
+            break
+          }
+        }
+      }
+      next.find('input:first').focus()
     }
   }
   
   $('.item.prototype').clone().removeClass('prototype').prependTo('.outlines').find('input').focus().keydown(create)
 
-  
   
 })
 </script>
@@ -42,12 +75,13 @@ $(document).ready(function(){
 <h1>Outlines</h1>
 <!-- <div class="notify"></div> -->
 
-<div class="outlines">
+<ul class="outlines">
   
-</div>
+</ul>
 
-<div class="item prototype" data-indents="0">
-  <input type="text" />  
-</div>
+<li class="item prototype" data-indents="0">
+  <input type="text" />
+  <ul class="contents"></ul>
+</li>
 
 </body></html>
