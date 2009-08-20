@@ -173,10 +173,13 @@ $(document).ready(function(){
   }
 
   function note_keydown(event){
-    if(event.which == keys.enter && event.shiftKey){
-      event.preventDefault()
-      var item = $(this).parents('.item:first')
-      item.find('.title').focus()
+    if(event.which == keys.enter){
+      event.stopPropagation()
+      if (event.shiftKey){
+        stop(event)
+        var item = $(this).parents('.item:first')
+        focus_item(item)
+      }
     }
   }
 
@@ -184,58 +187,64 @@ $(document).ready(function(){
     var item = $(this).parents('.item:first')
 
     if(event.which == keys.enter){
-      event.preventDefault()
+      stop(event)
       if      (event.shiftKey)  return item.find('.note').focus()
       else if (event.altKey)    return toggle_fold_item(item)
       else                      return create_item(function(node){ item.after(node) })
 
     } else if (event.which == keys.tab){
-      event.preventDefault()
+      stop(event)
       if (!event.shiftKey)      return indent(item)
       else                      return dedent(item)
 
     } else if (event.which == keys.up){
-      event.preventDefault()
+      stop(event)
       if      (event.shiftKey)  return move_up(item)
       else if (event.altKey)    return focus_item(item.prev())
       else                      return focus_prev(item)
 
     } else if (event.which == keys.down){
-      event.preventDefault()
+      stop(event)
       if      (event.shiftKey)  return move_down(item)
       else if (event.altKey)    return focus_item(item.next())
       else                      return focus_next(item)
 
     } else if (event.which == keys.right && event.shiftKey) {
-      event.preventDefault()
+      stop(event)
                                 return indent(item)
 
     } else if (event.which == keys.left && event.shiftKey) {
-      event.preventDefault()
+      stop(event)
                                 return dedent(item)
     
     } else if (event.which == keys.del && ($(this).val() == "" || event.ctrlKey || event.altKey)) {
-      event.preventDefault()
+      stop(event)
       // if (event.altKey)         reparenting_delete(item)
       // else                      
                                 return delete_tree(item)
     }
   }
   
+  function stop(event){
+    event.preventDefault()
+    event.stopPropagation()
+  }
+  
   function window_keydown(event){
     // console.debug(event.which)
 
     if (event.which == keys.enter){
+      stop(event)
       create_item(function(item){ item.appendTo($('.outlines')) })
     }
     
     if (event.which == keys.left && event.altKey) {
-      event.preventDefault()
+      stop(event)
       return undo()
     }
     
     if (event.which == keys.right && event.altKey) {
-      event.preventDefault()
+      stop(event)
       return redo()
     }
   }
@@ -299,7 +308,7 @@ $(document).ready(function(){
   <ul class="controls">
     <li>Enter: New Sibling
     <li>Shift+Enter: Edit Note/Title
-    <li>Alt+Enter: Toggle Fold
+    <li>Alt+Enter: Fold/Unfold
     <li>Alt+Backspace: Delete Tree
     <!-- <li>Alt+Backspace: Delete -->
     <li>Up/Down: Navigate Tree
