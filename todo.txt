@@ -1,0 +1,14 @@
+Needs folding
+
+Try some stylish rounded corners?
+
+Consider using Shift+Arrows for indent instead of tab, so it's consistent with the other movement commands
+
+needs some global actions, outside the text boxes
+  perhaps hitting next/prev while nothing is selected should select the first or last item
+
+this autogrow library stinks: it's ignoring my options, and it only grows every few miliseconds.  Why not check on keystrokes?  You'd need to keep it from over-animating, but still, shouldn't be too hard to do with this for reference.  I want it to act differently anyway: I don't want it to leave extra space for writing!  It should wrap tightly.
+  
+when I add folding, add ".visible" to the indent/etc selectors
+
+Perhaps I could make a keystroke editor eventually...

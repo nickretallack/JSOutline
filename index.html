@@ -97,6 +97,7 @@ $(document).ready(function(){
 
   function note_keydown(event){
     if(event.which == keys.enter && event.shiftKey){
+      event.preventDefault()
       var item = $(this).parents('.item:first')
       item.find('.title').focus()
     }
