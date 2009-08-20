@@ -4,24 +4,24 @@
 <style type="text/css">
 .outlines {position:relative;}
 .prototype {display:none;}
-input {font-weight:bold;}
-input, textarea {border:none; display:block; width:100%;
-  font-family:inherit; font-size:inherit; overflow:visible; line-height:1em;}
-textarea {min-height:2.5em; max-width:100ex;}
+.item {margin:1ex;}
+.title {font-weight:bold; height:1em;}
+.note { height:1em; font-size:.8em; border-top:0;}
+textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
+  font-family:inherit; font-size:inherit; margin:0; max-width:500pt;}
 li {display:block;}
 </style>
 
 <script src="jquery-1.3.2.js"></script>
 <script src="jquery.autogrow.js"></script>
 <script type="text/javascript">
-var keys = {enter:13, tab:9, up:38, down:40}
+var keys = {enter:13, tab:9, up:38, down:40, del:8}
 $(document).ready(function(){
-  // TODO: needs some global actions, outside the text boxes
     
   function create_item(insert){
     var node = $('.item.prototype').clone().removeClass('prototype')
     insert(node)
-    node.find('.note').keydown(note_keydown).autogrow()
+    node.find('.note').keydown(note_keydown).autogrow({extraSpace:100})
     node.find('.title').keydown(title_keydown).focus()    
   }
 
@@ -29,7 +29,7 @@ $(document).ready(function(){
     var prev = item.prev()
     if (prev.length){
       item.appendTo(prev.find('.contents:first'))
-      item.find('input:first').focus()
+      focus_item(item)
     }
   }
   
@@ -37,12 +37,10 @@ $(document).ready(function(){
     var parent = item.parents('.item:first')
     if (parent.length){
       parent.after(item)
-      item.find('input:first').focus()
+      focus_item(item)
     }
   }
 
-  // TODO: perhaps hitting these keys while nothing is selected should select the first or last item?
-  // TODO: when I add folding, add ".visible" to these selectors
   function focus_prev(item){
     var prev = item.prev('.item:first') // find prev sibling
      if (prev.length) {
@@ -51,7 +49,11 @@ $(document).ready(function(){
      } else {
        prev = item.parents('.item:first') // settle for own parent
      }
-     prev.find('input:first').focus()
+     return focus_item(prev)
+  }
+  
+  function focus_item(item){
+    return item.find('.title:first').focus()
   }
   
   function focus_next(item){
@@ -69,7 +71,7 @@ $(document).ready(function(){
         }
       }
     }
-    next.find('input:first').focus()    
+    return focus_item(next)    
   }
 
   function note_keydown(event){
@@ -83,6 +85,7 @@ $(document).ready(function(){
   function title_keydown(event){
     var item = $(this).parents('.item:first')
 
+    // console.debug(event.which)
     if(event.which == keys.enter){
       event.preventDefault()
       if (!event.shiftKey) create_item(function(node){ item.after(node) })
@@ -95,7 +98,14 @@ $(document).ready(function(){
 
     } else if (event.which == keys.up)   focus_prev(item)
       else if (event.which == keys.down) focus_next(item)
+
+      else if (event.which == keys.del && $(this).val() == ""){
+        if (focus_prev(item).length || focus_next(item).length) item.remove()
+      }
+
   }
+
+
 
   create_item(function(node){ node.prependTo('.outlines') })
   // hmm, what about deleting items?  
@@ -112,7 +122,7 @@ $(document).ready(function(){
 </ul>
 
 <li class="item prototype" data-indents="0">
-  <input type="text" class="title"/>
+  <textarea class="title"></textarea>
   <textarea class="note"></textarea>
   <ul class="contents"></ul>
 </li>
