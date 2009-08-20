@@ -1,8 +1,6 @@
-Needs folding
+Is it useful to move something up or down in a way that re-parents it?  Yeah I think it's useful.  Lets do it.
 
 Try some stylish rounded corners?
-
-Consider using Shift+Arrows for indent instead of tab, so it's consistent with the other movement commands
 
 needs some global actions, outside the text boxes
   perhaps hitting next/prev while nothing is selected should select the first or last item
@@ -12,3 +10,4 @@ this autogrow library stinks: it's ignoring my options, and it only grows every 
 when I add folding, add ".visible" to the indent/etc selectors
 
 Perhaps I could make a keystroke editor eventually...
+

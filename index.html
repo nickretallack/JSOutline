@@ -11,13 +11,21 @@ textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
   font-family:inherit; font-size:inherit; margin:0; max-width:500pt;}
 li {display:block;}
 
-.controls {-webkit-column-width:15em;}
+.folded .contents {display:none;}
+.folded {border-bottom:1px dashed gray; padding-bottom:2px; }
+.controls {-webkit-column-width:15em; -moz-column-width:15em;}
+
+.title {-webkit-border-radius:4pt 4pt 0 0; -moz-border-radius:4pt 4pt 0 0;}
+.note  {-webkit-border-radius:0 0 4pt 4pt; -moz-border-radius:0 0 4pt 4pt;}
+.title, .note {padding:2pt;}
+.title {padding-bottom:0;}
+.note {padding-top:0;}
 </style>
 
 <script src="jquery-1.3.2.js"></script>
 <script src="jquery.autogrow.js"></script>
 <script type="text/javascript">
-var keys = {enter:13, tab:9, up:38, down:40, del:8}
+var keys = {enter:13, tab:9, up:38, down:40, left:37, right:39, del:8}
 $(document).ready(function(){
        
   function create_item(insert){
@@ -29,7 +37,7 @@ $(document).ready(function(){
 
   function indent(item){
     var prev = item.prev()
-    if (prev.length){
+    if (prev.length && !prev.hasClass('folded')){
       item.appendTo(prev.find('.contents:first'))
       focus_item(item)
     }
@@ -49,18 +57,19 @@ $(document).ready(function(){
 
   function focus_prev(item){
     var prev = item.prev('.item:first') // find prev sibling
-     if (prev.length) {
-       var child = prev.find('.item:last') // prefer sibling's last x-child
-       if (child.length) prev = child
-     } else {
-       prev = item.parents('.item:first') // settle for own parent
-     }
-     return focus_item(prev)
+    if (prev.length) {
+      var child = prev.find('.item:last') // prefer sibling's last x-child
+      if (child.length && !prev.hasClass('folded')) prev = child
+    } else {
+      prev = item.parents('.item:first') // settle for own parent
+    }
+    return focus_item(prev)
   }  
   
   function focus_next(item){
-    var next = item.find('.item:first') // prefer first child
-    if (!next.length) next = item.next() // settle for next sibling
+    var next
+    if (!item.hasClass('.folded')) next = item.find('.item:first') // prefer first child
+    if (!next || !next.length) next = item.next() // settle for next sibling
     if (!next.length) { // settle for x-parent's next sibling
       next = item
       while (true){
@@ -77,7 +86,11 @@ $(document).ready(function(){
   }
     
   function move_up(item){
-    item.prev().before(item)
+    var prev = item.prev()
+    if (prev.length) prev.before(item)
+    // else { // re-parent?  Is this useful?
+    //   
+    // }
     focus_item(item)
   }
 
@@ -95,6 +108,12 @@ $(document).ready(function(){
     }
   }
 
+  function toggle_fold_item(item){
+    if (item.hasClass('folded')) item.removeClass('folded')
+    else item.addClass('folded')
+  }
+
+
   function note_keydown(event){
     if(event.which == keys.enter && event.shiftKey){
       event.preventDefault()
@@ -109,8 +128,9 @@ $(document).ready(function(){
     // console.debug(event.which)
     if(event.which == keys.enter){
       event.preventDefault()
-      if (!event.shiftKey)      create_item(function(node){ item.after(node) })
-      else                      item.find('.note').focus()
+      if      (event.shiftKey)  item.find('.note').focus()
+      else if (event.altKey)    toggle_fold_item(item)
+      else                      create_item(function(node){ item.after(node) })
 
     } else if (event.which == keys.tab){
       event.preventDefault()
@@ -118,17 +138,24 @@ $(document).ready(function(){
       else                      dedent(item)
 
     } else if (event.which == keys.up){
-      if (event.shiftKey)       move_up(item)
+      if      (event.shiftKey)  move_up(item)
       else if (event.altKey)    focus_item(item.prev())
       else                      focus_prev(item)
 
     } else if (event.which == keys.down){
-        if (event.shiftKey)     move_down(item)
-        else if (event.altKey)  focus_item(item.next())
-        else                    focus_next(item)
-    } 
+      if      (event.shiftKey)  move_down(item)
+      else if (event.altKey)    focus_item(item.next())
+      else                      focus_next(item)
 
-    else if (event.which == keys.del && ($(this).val() == "" || event.ctrlKey)) {
+    } else if (event.which == keys.right && event.shiftKey) {
+      event.preventDefault()
+      indent(item)
+
+    } else if (event.which == keys.left && event.shiftKey) {
+      event.preventDefault()
+      dedent(item)
+    
+    } else if (event.which == keys.del && ($(this).val() == "" || event.ctrlKey)) {
       event.preventDefault()
       delete_item(item)
     }
@@ -144,14 +171,13 @@ $(document).ready(function(){
 
 </head><body>
   <ul class="controls">
-    <li>Enter: New Sibling.
-    <li>Shift+Enter: Edit Note/Title Part.
-    <li>Tab: Indent.
-    <li>Shift+Tab: Dedent.
-    <li>Up/Down: Navigate Tree.
-    <li>Shift+Up/Down: Move Sibling.
-    <li>Alt+Up/Down: Navigate Siblings.
-    <li>Ctrl-Backspace: Delete.
+    <li>Enter: New Sibling
+    <li>Shift+Enter: Edit Note/Title
+    <li>Shift+Arrows: Move
+    <li>Ctrl+Backspace: Delete
+    <li>Up/Down: Navigate Tree
+    <li>Alt+Up/Down: Navigate Siblings
+    <li>Alt+Enter: Toggle Fold
   </ul>
 <!-- <div class="notify"></div> -->
 
