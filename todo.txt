@@ -1,16 +1,30 @@
-needs some global actions, outside the text boxes
-  perhaps hitting next/prev while nothing is selected should select the first or last item
 
-this autogrow library stinks: it's ignoring my options, and it only grows every few miliseconds.  Why not check on keystrokes?  You'd need to keep it from over-animating, but still, shouldn't be too hard to do with this for reference.  I want it to act differently anyway: I don't want it to leave extra space for writing!  It should wrap tightly.
-  
-Perhaps I could make a keystroke editor eventually...
+Persistence button with gears.  Maybe a simple cookie-based store too.
 
-Persistence: cookies, gears, web =]
+Persistence: gears, web =]
+Use events!
+
+
+Post it up on my blog and request for comments =]
+
+Premium account = sync to web
 
 Perhaps have a 'force sync' button to sync to the web
-Premium account = sync to web
 
 If delete_reparent is useful, find a way to undo it gracefully.  It's so destructive!
 
 Is it useful to move something up or down in a way that re-parents it?  Kinda sorta.
 
+Ugh, how do I deal with the initial item problem with my event system?
+
+Refactor key controls to a common pattern: select and return the function, and if one is chosen, stop events.
+
+this autogrow library stinks: it's ignoring my options, and it only grows every few miliseconds.  Why not check on keystrokes?  You'd need to keep it from over-animating, but still, shouldn't be too hard to do with this for reference.  I want it to act differently anyway: I don't want it to leave extra space for writing!  It should wrap tightly.
+
+Perhaps I could make a keystroke editor eventually...
+
+Evaluate other useful commands, like: 
+ - Group -- how would I implement this in text mode, adopt siblings?
+ 
+ 
+ Dude, I could totally make an ncurses client for this :P

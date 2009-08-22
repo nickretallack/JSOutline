@@ -261,13 +261,23 @@ $(document).ready(function(){
     } else if (event.which == keys.right && event.altKey) {
       stop(event)
       return redo()
+
+    } else if (event.which == keys.up){
+      if ($(':focus').length) return // only act when nothing is focused
+      stop(event)
+      focus_item($('.outlines > .item:last'))
+
+    } else if (event.which == keys.down){
+      if ($(':focus').length) return // only act when nothing is focused
+      stop(event)
+      focus_item($('.outlines > .item:first'))
     }
   }
   
   $(window).keydown(window_keydown)
   
   
-  var reverse_event = {
+  var reverse_events = {
     create:     function(data){ delete_tree (data.item) },
     indent:     function(data){ dedent      (data.item) },
     dedent:     function(data){ indent      (data.item) },
@@ -292,8 +302,32 @@ $(document).ready(function(){
       data.field.attr('data-text', data.old_text)
       data.field.focus()
       create_history_item({type:'change', field:data.field, old_text:data.new_text, new_text:data.old_text})
+    },
+    base_item: function(data){
+      // if (events.length > 1) {
+      //   var base_node_event = events.pop()
+      //   var delete_event = events.pop()
+      //   // reverse deletion first so we we'll have some content and wont automatically create another seed node
+      //   reverse_event(delete_event)
+      //   var reversed_delete = events.pop()
+      //   reverse_event(base_node_event)
+      //   var reversed_base = events.pop()
+      //   console.debug('reversed_delete', reversed_delete, reversed_delete.item.get())
+      //   console.debug('reversed_base', reversed_base, reversed_base.item.get())
+      //   console.debug('shuffled',events)
+      //   events.push(reversed_delete)
+      //   // events.pop()
+      //   // console.debug('popped',undone_events.pop()) // the base node should not be recorded        
+      // }
     }
   }
+  
+  function reverse_event(event){
+    history_event = true
+    reverse_events[event.type](event)
+    history_event = false    
+  }
+  
   
   function faniggle_text(){
     var field = $(':focus')
@@ -302,29 +336,26 @@ $(document).ready(function(){
   }
   
   function undo(){
-    // quick hack for text editing
-    faniggle_text()    
+    faniggle_text()
     
     if (events.length) {
-      history_event = true
       var event = events.pop()
-      reverse_event[event.type](event)
+      reverse_event(event)
       undone_events.push(events.pop())
-      history_event = false
     }
   }
 
   function redo(){
+    // console.debug(events)
     if (undone_events.length) {
-      history_event = true
       var event = undone_events.pop()
-      reverse_event[event.type](event)
-      history_event = false
+      reverse_event(event)
     }
   }
 
   function init_empty(){
     create_item(function(node){ node.appendTo('.outlines') })
+    // create_history_item({type:'base_item'})
     events.pop()
   }
   
