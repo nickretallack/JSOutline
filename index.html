@@ -20,7 +20,7 @@ textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
 .note {padding-top:0;}
 </style>
 
-<script src="gears_init.js"></script>
+<!-- <script src="gears_init.js"></script> -->
 <script>
   // if (!window.google || !google.gears) {
   //   location.href = "http://gears.google.com/?action=install&message=<your welcome message>" +
@@ -29,41 +29,61 @@ textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
 </script>
 <script src="jquery-1.3.2.js"></script>
 <script src="jquery.autogrow.js"></script>
+<script src="jquery.json-2.2.js"></script>
 <script type="text/javascript">
 // Undo + Persistence
 var events = []
 var undone_events = []
 var history_event = false
+var replay_mode = false
 
 $(document).ready(function(){
   var keys = {enter:13, tab:9, up:38, down:40, left:37, right:39, del:8}
-  
+
   function create_history_item(data){
     events.push(data)
-    // $('.output').text(data.toSource())
+    
     if (!history_event) undone_events = []
+
+    
+    if (storage_method == "localStorage"){
+      var event_count = parseInt(localStorage.event_count)
+      if (history_event) {
+        localStorage.removeItem('event-'+(event_count-1))
+        localStorage.event_count = event_count -1
+      }
+      if (!history_event && !replay_mode){
+        localStorage['event-'+event_count] = $.toJSON(data)
+        localStorage.event_count = event_count +1
+      }
+    }
+    
+    // $('.output').text(data.toSource())
     // Doing real events destroys undone events. How sad.
   }
   
   function changed_text(event){
     var field = $(this)
+    var item = field.parents('.item:first')
     var old_text = field.attr("data-text")
     var new_text = field.val()
     if (old_text != new_text){
       field.attr("data-text", new_text)
-      create_history_item({type:'change', field:field, old_text:old_text, new_text:new_text})      
+      var field_kind = field.hasClass('title') ? 'title' : 'note'
+      create_history_item({type:'change', item:item.attr('data-id'), field:field_kind, old_text:old_text, new_text:new_text})      
     }
   }
   
+  
   var auto_increment = 0
   function create_item(insert){
-    var node = $('.item.prototype').clone().removeClass('prototype').attr('data-id',auto_icrement)
+    var node = $('.item.prototype').clone().removeClass('prototype').attr('data-id',auto_increment)
     auto_increment += 1
     insert(node)
     $(':focus').blur()
     node.find('.note').keydown(note_keydown).change(changed_text).autogrow({extraSpace:100}).blur(changed_text)
     node.find('.title').keydown(title_keydown).focus().blur(changed_text)
-    create_history_item({type:'create', item:node})
+    create_history_item({type:'create', item:node.attr('data-id'), prev:node.prev().attr('data-id')})
     return false
   }
 
@@ -72,7 +92,7 @@ $(document).ready(function(){
     if (prev.length && !prev.hasClass('folded')){
       item.appendTo(prev.find('.contents:first'))
       focus_item(item)
-      create_history_item({type:'indent', item:item})
+      create_history_item({type:'indent', item:item.attr('data-id')})
     }
   }
   
@@ -81,7 +101,7 @@ $(document).ready(function(){
     if (parent.length){
       parent.after(item)
       focus_item(item)
-      create_history_item({type:'dedent', item:item})
+      create_history_item({type:'dedent', item:item.attr('data-id')})
     }
   }
 
@@ -135,13 +155,13 @@ $(document).ready(function(){
     //   
     // }
     focus_item(item)
-    create_history_item({type:'move_up', item:item})
+    create_history_item({type:'move_up', item:item.attr('data-id')})
   }
 
   function move_down(item){
     item.next().after(item)
     focus_item(item)
-    create_history_item({type:'move_down', item:item})
+    create_history_item({type:'move_down', item:item.attr('data-id')})
   }
   
   function delete_tree(item){
@@ -150,7 +170,9 @@ $(document).ready(function(){
     var parent
     if (!prev.length) parent = item.parents('.contents:first')
     item.prependTo($('.dead'))
-    create_history_item({type:'delete_tree', item:item, prev:prev, parent:parent})
+    history_data = 
+    create_history_item({type:'delete_tree', item:item.attr('data-id'), prev:prev.attr('data-id'), 
+                        parent: (typeof parent == 'undefined' ? null : parent.attr('data-id')) })
 
     if(!$('.outlines .item').length) init_empty()
     // unfortunately, this can create a lot of useless nodes in the history...
@@ -160,7 +182,7 @@ $(document).ready(function(){
     //   item.find('.title, .note').val('')
     //   item.find('.item').remove()
     //   item.removeClass('folded')
-    //   create_history_item({type:'clear', item:item})
+    //   create_history_item({type:'clear', item:item.attr('data-id')})
     //   // okay now I really need to fix this problem.
     //   // should reall get rid of this special case and just do a re-create node if necessary...
     // }
@@ -173,18 +195,18 @@ $(document).ready(function(){
       parent.find('.contents:first').append(children)
       item.remove()
       focus_item(parent)
-      events.push({type:'delete_reparent', item:item})
+      events.push({type:'delete_reparent', item:item.attr('data-id')})
     }
   }
   
   function fold(item){
     item.addClass('folded')
-    create_history_item({type:'fold', item:item})    
+    create_history_item({type:'fold', item:item.attr('data-id')})    
   }
   
   function unfold(item){
     item.removeClass('folded')
-    create_history_item({type:'unfold', item:item})    
+    create_history_item({type:'unfold', item:item.attr('data-id')})    
   }
 
   function toggle_fold_item(item){
@@ -282,22 +304,54 @@ $(document).ready(function(){
   }
   
   $(window).keydown(window_keydown)
+
+  function find_item(id){ return $('[data-id='+id+']') }
+
+  
+  var forward_events = {
+    create: function(data) { 
+      var prev = find_item(data.prev)
+      if (prev.length)
+        create_item(function(node){ prev.after(node) })
+      else
+        init_empty()
+    },
+    indent:     function(data){ indent      (find_item(data.item)) },
+    dedent:     function(data){ dedent      (find_item(data.item)) },
+    move_up:    function(data){ move_up     (find_item(data.item)) },
+    move_down:  function(data){ move_down   (find_item(data.item)) },
+    fold:       function(data){ fold        (find_item(data.item)) },
+    unfold:     function(data){ unfold      (find_item(data.item)) },
+    delete_tree:function(data){ delete_tree (find_item(data.item)) },
+    change:     function(data){
+      var item = find_item(data.item)
+      var field = item.find('.'+data.field+':first')
+      field.val(data.new_text)
+      field.attr('data-text', data.new_text)
+      field.focus()
+      create_history_item({type:'change', item:data.item, field:data.field, old_text:data.old_text, new_text:data.new_text})
+    }    
+  }
+  
   
   
   var reverse_events = {
-    create:     function(data){ delete_tree (data.item) },
-    indent:     function(data){ dedent      (data.item) },
-    dedent:     function(data){ indent      (data.item) },
-    move_up:    function(data){ move_down   (data.item) },
-    move_down:  function(data){ move_up     (data.item) },
-    fold:       function(data){ unfold      (data.item) },
-    unfold:     function(data){ fold        (data.item) },
+    create:     function(data){ delete_tree (find_item(data.item)) },
+    indent:     function(data){ dedent      (find_item(data.item)) },
+    dedent:     function(data){ indent      (find_item(data.item)) },
+    move_up:    function(data){ move_down   (find_item(data.item)) },
+    move_down:  function(data){ move_up     (find_item(data.item)) },
+    fold:       function(data){ unfold      (find_item(data.item)) },
+    unfold:     function(data){ fold        (find_item(data.item)) },
     delete_tree:function(data){ // restore from purgatory
-        if (data.prev.length) data.prev.after(data.item)
-        else data.parent.prepend(data.item)
-        focus_item(data.item)
-        create_history_item({type:'create', item:data.item})
-      },
+      var item = find_item(data.item)
+      var prev = ($('[data-id='+data.prev+']'))
+      var parent = ($('[data-id='+data.parent+']'))
+      if (prev.length) prev.after(item)
+      else parent.prepend(item)
+      focus_item(item)
+      create_history_item({type:'create', item:data.item})
+    },
     delete_rebase:function(data){
       
     },
@@ -305,10 +359,12 @@ $(document).ready(function(){
       // damn, this one might be difficult
     },
     change: function(data){
-      data.field.val(data.old_text)
-      data.field.attr('data-text', data.old_text)
-      data.field.focus()
-      create_history_item({type:'change', field:data.field, old_text:data.new_text, new_text:data.old_text})
+      var item = find_item(data.item)
+      var field = item.find('.'+data.field+':first')
+      field.val(data.old_text)
+      field.attr('data-text', data.old_text)
+      field.focus()
+      create_history_item({type:'change', item:data.item, field:data.field, old_text:data.new_text, new_text:data.old_text})
     },
     base_item: function(data){
       // if (events.length > 1) {
@@ -367,6 +423,27 @@ $(document).ready(function(){
   }
   
   init_empty()
+  
+  var storage_method = null
+  if (typeof localStorage != 'undefined'){
+    storage_method = "localStorage"
+    
+    if (localStorage.event_count) {
+      replay_mode = true
+      var event_count = parseInt(localStorage.event_count)
+      for (var x = 0; x < event_count; x++){
+        var raw_event = localStorage["event-"+x]
+        var event = $.evalJSON(raw_event)
+        forward_events[event.type](event)
+        console.debug(localStorage["event-"+x])
+      }
+      replay_mode = false
+    } else {
+      localStorage.event_count = 0
+    }
+  }
+  
+  
   
 })
 </script>

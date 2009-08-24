@@ -1,3 +1,18 @@
+persistence with localStorage
+switch to note sometimes chooses the wrong note
+
+try saving as encoded markup or a url
+
+
+stringifying things:
+
+should change convention from data.item to data.item_id
+
+
+
+-- fallback to cookies or flashStorage.
+
+
 
 Persistence button with gears.  Maybe a simple cookie-based store too.
 
@@ -30,3 +45,7 @@ Evaluate other useful commands, like:
 Dude, I could totally make an ncurses client for this :P
 
 make it output a plain html file
+
+make an omnifocus merging tool
+
+make a text event onTimeout
