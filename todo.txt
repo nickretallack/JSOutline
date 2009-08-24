@@ -1,3 +1,9 @@
+call faniggle_text with an onTimeout after last keystroke
+make two forms of create_item -- one for the first parent-less item?
+
+One way to model undo/redo would be to not delete the events when I undo, but just remember at what event I'm currently at.  Later events can still exist, and I can walk into them to redo them.  However, I should keep an index for the last relevant redo event, or I might walk into nonsensical events.  Also, I don't want to store too many nonsensical events, so I should probably clear those somehow...
+
+
 persistence with localStorage
 switch to note sometimes chooses the wrong note
 
