@@ -27,4 +27,6 @@ Evaluate other useful commands, like:
  - Group -- how would I implement this in text mode, adopt siblings?
  
  
- Dude, I could totally make an ncurses client for this :P
+Dude, I could totally make an ncurses client for this :P
+
+make it output a plain html file

@@ -9,8 +9,6 @@
 .note { height:1em; font-size:.8em; border-top:0;}
 textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
   font-family:inherit; font-size:inherit; margin:0; max-width:500pt;}
-
-
 .folded .contents {display:none;}
 .folded {border-bottom:1px dashed gray; padding-bottom:2px; }
 .controls {-webkit-column-width:15em; -moz-column-width:15em;}
@@ -22,6 +20,13 @@ textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
 .note {padding-top:0;}
 </style>
 
+<script src="gears_init.js"></script>
+<script>
+  // if (!window.google || !google.gears) {
+  //   location.href = "http://gears.google.com/?action=install&message=<your welcome message>" +
+  //                   "&return=<your website url>";
+  // }
+</script>
 <script src="jquery-1.3.2.js"></script>
 <script src="jquery.autogrow.js"></script>
 <script type="text/javascript">
@@ -50,8 +55,10 @@ $(document).ready(function(){
     }
   }
   
+  var auto_increment = 0
   function create_item(insert){
-    var node = $('.item.prototype').clone().removeClass('prototype')
+    var node = $('.item.prototype').clone().removeClass('prototype').attr('data-id',auto_icrement)
+    auto_increment += 1
     insert(node)
     $(':focus').blur()
     node.find('.note').keydown(note_keydown).change(changed_text).autogrow({extraSpace:100}).blur(changed_text)
