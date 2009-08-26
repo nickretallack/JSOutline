@@ -11,10 +11,10 @@ function title_keydown(event){
     stop(event)
     if      (event.shiftKey)  {
       $(':focus').blur()          // find a better way to do this
-      item.find('.note').focus()
+      item.find('.note:first').focus()
     } 
     else if (event.altKey)    return toggle_fold_item(item)
-    else                      return create_item(function(node){ item.after(node) })
+    else                      return create_sibling(item)
 
   } else if (event.which == keys.tab){
     stop(event)
@@ -113,6 +113,8 @@ function stop(event){
 // This is useful when we need to generate a text-changed event yet the user
 // has not deselected the text box yet.  Also used when blur() doesn't fire properly.
 function faniggle_text(){
+  console.debug(events)
+  // console.debug("faniggled")
   var field = $(':focus')
   field.blur()
   field.focus()

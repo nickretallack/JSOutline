@@ -3,21 +3,23 @@
 <!-- <link rel="stylesheet" href="common.css"> -->
 <style type="text/css">
 .outlines {position:relative;}
-.prototype, .dead {display:none !important;}
-.item {margin:1ex 0 1ex; display:block;}
-.title {font-weight:bold; height:1em;}
-.note { height:1em; font-size:.8em; border-top:0;}
+.prototype, .dead, .folded .contents {display:none !important;}
+
+.item {margin:.5ex 0; display:block;}
+.title {font-weight:bold; height:1.1em;}
+.note { height:1.1em; font-size:.8em; border-top:0;}
 textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
-  font-family:inherit; font-size:inherit; margin:0; max-width:500pt;}
-.folded .contents {display:none;}
-.folded {border-bottom:1px dashed gray; padding-bottom:2px; }
+  font-family:inherit; font-size:inherit; margin:0; max-width:500pt; overflow:hidden;}
+
 .controls {-webkit-column-width:15em; -moz-column-width:15em;}
 
+/* Borders */
 .title {-webkit-border-radius:4pt 4pt 0 0; -moz-border-radius:4pt 4pt 0 0;}
 .note  {-webkit-border-radius:0 0 4pt 4pt; -moz-border-radius:0 0 4pt 4pt;}
 .title, .note {padding:2pt;}
 .title {padding-bottom:0;}
 .note {padding-top:0;}
+.folded {border-bottom:1px dashed gray; padding-bottom:.5ex; }
 </style>
 
 <!-- <script src="gears_init.js"></script> -->
@@ -58,7 +60,7 @@ $(document).ready(function(){
     <li>Alt+Left/Right: Undo/Redo
   </ul>
 
-<ul class="outlines contents"></ul>
+<ul class="root contents"></ul>
 
 <ul class="dead"></ul>
 

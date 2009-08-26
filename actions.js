@@ -1,18 +1,31 @@
-var auto_increment = 0
 
 
 // Takes a function to decide on the insert point, but this is not very compatible with my event model
 // since events have to be normalized to strings, and the function will include a dom pointer.  How sad.
 // TODO: refactor this into two forms, making use of shared code.
-function create_item(insert){
+
+function create_sibling(item){
+  var node = create_an_item(function(node){ item.after(node) })
+  create_history_item({type:'create_sibling', item:node.attr('data-id'), prev:item.attr('data-id')})
+}
+
+var auto_increment = 0
+function create_an_item(insert){
   var node = $('.item.prototype').clone().removeClass('prototype').attr('data-id',auto_increment)
   auto_increment += 1
   insert(node)
   $(':focus').blur()
-  node.find('.note').keydown(note_keydown).change(changed_text).autogrow({extraSpace:100}).blur(changed_text)
-  node.find('.title').keydown(title_keydown).focus().blur(changed_text)
-  create_history_item({type:'create', item:node.attr('data-id'), prev:node.prev().attr('data-id')})
-  return false
+  node.find('.note').keydown(note_keydown).autogrow({extraSpace:100}).blur(changed_text).keydown(change_countdown)
+  node.find('.title').keydown(title_keydown).focus().blur(changed_text).keydown(change_countdown)  
+  return node
+}
+
+
+var time_until_autosave = 5000
+var change_countdown_timer
+function change_countdown(event){
+  clearTimeout(change_countdown_timer)
+  change_countdown_timer = setTimeout(faniggle_text, time_until_autosave)
 }
 
 // Move current item to be the last child of its previous sibling
@@ -96,33 +109,45 @@ function move_down(item){
 
 // Delete a node and all sub-nodes, moving them to purgatory so they can be resurrected later
 function delete_tree(item){
+  history_data = {type:'delete_tree', item:item.attr('data-id')}
+  
+  // find something else to look at
   focus_prev(item).length || focus_item(item.next()).length
-  var prev = item.prev()
-  var parent
-  if (!prev.length) parent = item.parents('.contents:first')
-  item.prependTo($('.dead'))
-  history_data = 
-  create_history_item({type:'delete_tree', item:item.attr('data-id'), prev:prev.attr('data-id'), 
-                      parent: (typeof parent == 'undefined' ? null : parent.attr('data-id')) })
 
-  if(!$('.outlines .item').length) init_empty()
-  // unfortunately, this can create a lot of useless nodes in the history...
-  // but you'd need a blank outline for that to happen anyway.  Hurr.  What's the right thing to do?
+  // remember where this node was atached
+  var prev = item.prev()
+  if (!prev.length) {
+    var parent = item.parents('.contents:first')
+    history_data['parent'] = parent.attr('data-id')
+  } else {
+    history_data['prev'] = prev.attr('data-id')
+  }
+    
+  // save in purgatory for later ressuraction
+  item.prependTo($('.dead'))
+
+  // if there are no nodes left, create a new one as part of this same event.
+  if(!$('.root .item').length) {
+    var node = create_an_item(function(node){ $('.root').prepend(node) })
+    history_data['new_item_id'] = node.attr('data-id')
+  }
+  
+  create_history_item(history_data)
 }
 
 // Moves a node to purgatory, but makes all of its children into children of its parent
 // This one doesn't have a redo action yet because it is rather mutative.  I'd need to list the
 // nodes that got reparented so that all of them could be parented back.
-function delete_reparent(item){
-  var children = item.find('.contents:first > .item')
-  var parent = item.parents('.item:first')
-  if (parent.length){
-    parent.find('.contents:first').append(children)
-    item.remove()
-    focus_item(parent)
-    events.push({type:'delete_reparent', item:item.attr('data-id')})
-  }
-}
+// function delete_reparent(item){
+//   var children = item.find('.contents:first > .item')
+//   var parent = item.parents('.item:first')
+//   if (parent.length){
+//     parent.find('.contents:first').append(children)
+//     item.remove()
+//     focus_item(parent)
+//     events.push({type:'delete_reparent', item:item.attr('data-id')})
+//   }
+// }
 
 // Hides and deactivates child nodes
 function fold(item){
@@ -148,11 +173,13 @@ function toggle_fold_item(item){
 function undo(){
   faniggle_text()
   
+  reverse_mode = true
   if (events.length) {
     var event = events.pop()
     reverse_event(event)
     undone_events.push(events.pop())
   }
+  reverse_mode = false
 }
 
 // Reverses actions again that were previously reversed, hence returning to normal
@@ -167,9 +194,9 @@ function redo(){
 function find_item(id){ return $('[data-id='+id+']') }
 
 function init_empty(){
-  create_item(function(node){ node.appendTo('.outlines') })
+  create_an_item(function(node){ node.appendTo('.root') })
   // create_history_item({type:'base_item'})
-  events.pop()
+  // events.pop()
 }
 
 // These really need some better names
@@ -177,6 +204,7 @@ var events = []
 var undone_events = []
 var history_event = false
 var replay_mode = false
+var reverse_mode = false
 
 // Add an event to the undo/redo history, as well as the persistence layer
 // Should we make use of the persistence layer for event history directly?  I mean..
@@ -188,13 +216,15 @@ function create_history_item(data){
 
   if (storage_method == "localStorage"){
     var event_count = parseInt(localStorage.event_count)
-    if (history_event) {
+    if (reverse_mode) {
       localStorage.removeItem('event-'+(event_count-1))
       localStorage.event_count = event_count -1
+      console.debug('undid:',event_count)
     }
-    if (!history_event && !replay_mode){
+    else if (!replay_mode){
       localStorage['event-'+event_count] = $.toJSON(data)
       localStorage.event_count = event_count +1
+      console.debug('did:',event_count)
     }
   }
   
@@ -204,12 +234,9 @@ function create_history_item(data){
 
 // How to re-play events from hard storage
 var forward_events = {
-  create: function(data) { 
+  create_sibling: function(data) { 
     var prev = find_item(data.prev)
-    if (prev.length)
-      create_item(function(node){ prev.after(node) })
-    else
-      init_empty()
+    create_sibling(prev)
   },
   indent:     function(data){ indent      (find_item(data.item)) },
   dedent:     function(data){ dedent      (find_item(data.item)) },
@@ -231,21 +258,35 @@ var forward_events = {
 // How to reverse events that were carried out in this session, including those
 // replayed from storage.
 var reverse_events = {
-  create:     function(data){ delete_tree (find_item(data.item)) },
+  create_sibling: function(data){ delete_tree (find_item(data.item)) },
   indent:     function(data){ dedent      (find_item(data.item)) },
   dedent:     function(data){ indent      (find_item(data.item)) },
   move_up:    function(data){ move_down   (find_item(data.item)) },
   move_down:  function(data){ move_up     (find_item(data.item)) },
   fold:       function(data){ unfold      (find_item(data.item)) },
   unfold:     function(data){ fold        (find_item(data.item)) },
-  delete_tree:function(data){ // restore from purgatory
+  delete_tree:function(data){
+    // restore an item from purgatory to its original place
     var item = find_item(data.item)
-    var prev = ($('[data-id='+data.prev+']'))
-    var parent = ($('[data-id='+data.parent+']'))
+    var prev = find_item(data.prev)
+    var parent = find_item(data.parent)
     if (prev.length) prev.after(item)
-    else parent.prepend(item)
+    else if (parent.length) {
+      parent.prepend(item)
+      console.debug("local")
+    } else {
+      console.debug(item.get(), $('.root').get())
+      $('.root').prepend(item)
+    }
     focus_item(item)
-    create_history_item({type:'create', item:data.item})
+
+    // if we created a new item to replace it, get rid of that now
+    if (data.new_item_id){
+      var new_item = find_item(data.new_item_id)
+      new_item.remove()
+    }
+    
+    create_history_item({type:'create_sibling', item:data.item})
   },
   delete_rebase:function(data){
     
@@ -298,7 +339,7 @@ function read_persistent_data(){
         var raw_event = localStorage["event-"+x]
         var event = $.evalJSON(raw_event)
         forward_events[event.type](event)
-        console.debug(localStorage["event-"+x])
+        // console.debug(localStorage["event-"+x])
       }
       replay_mode = false
     } else {
