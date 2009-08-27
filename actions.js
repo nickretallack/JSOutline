@@ -169,8 +169,10 @@ function create_an_item(insert, id){
   if (!id) {
     id = auto_increment
     auto_increment += 1
-  }
+  } else if (id >= auto_increment) auto_increment = parseInt(id)+1
+  
   var node = $('.item.prototype').clone().removeClass('prototype').attr('data-id',id)
+  console.debug("creating node", id)
   insert(node)
   $(':focus').blur()
   node.find('.note').keydown(note_keydown).autogrow({extraSpace:100}).blur(changed_text).keydown(change_countdown)
@@ -181,7 +183,7 @@ function create_an_item(insert, id){
 // Find an item the way it is described in text-based event history
 function find_item(id){ return $('[data-id='+id+']') }
 
-var time_until_autosave = 5000
+var time_until_autosave = 1000
 var change_countdown_timer
 function change_countdown(event){
   clearTimeout(change_countdown_timer)

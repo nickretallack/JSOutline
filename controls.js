@@ -113,6 +113,7 @@ function stop(event){
 // This is useful when we need to generate a text-changed event yet the user
 // has not deselected the text box yet.  Also used when blur() doesn't fire properly.
 function faniggle_text(){
+  console.debug("faniggled")
   var field = $(':focus')
   field.blur()
   field.focus()
