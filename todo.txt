@@ -1,5 +1,5 @@
 - redesign
-  - events inside persistence
+  + events inside persistence
   - should change convention from data.item to data.item_id
   - make key controls configurable
     - keystroke editor
@@ -8,11 +8,11 @@
 - persistence
   + localStorage
     - invalidate redo history
-  - cookies?
+  + cookies?
   - gears
   - flashStorage
   - html page
-  - url?
+  - url/hash
   - server-side (premium?)
 
 - reliability

@@ -54,7 +54,7 @@ function window_keydown(event){
   if (event.which == keys.enter){
     if ($(':focus').length) return // only act when nothing is focused
     stop(event)
-    create_item(function(item){ item.appendTo($('.outlines')) })
+    create_sibling($('.root > .item:last'))
   
   } else if (event.which == keys.left && event.altKey) {
     stop(event)
@@ -67,12 +67,12 @@ function window_keydown(event){
   } else if (event.which == keys.up){
     if ($(':focus').length) return // only act when nothing is focused
     stop(event)
-    focus_item($('.outlines > .item:last'))
+    focus_item($('.root > .item:last'))
 
   } else if (event.which == keys.down){
     if ($(':focus').length) return // only act when nothing is focused
     stop(event)
-    focus_item($('.outlines > .item:first'))
+    focus_item($('.root > .item:first'))
   }
 }
 
@@ -113,7 +113,7 @@ function stop(event){
 // This is useful when we need to generate a text-changed event yet the user
 // has not deselected the text box yet.  Also used when blur() doesn't fire properly.
 function faniggle_text(){
-  console.debug("faniggled")
+  // console.debug("faniggled")
   var field = $(':focus')
   field.blur()
   field.focus()

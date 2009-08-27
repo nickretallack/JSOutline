@@ -172,7 +172,7 @@ function create_an_item(insert, id){
   } else if (id >= auto_increment) auto_increment = parseInt(id)+1
   
   var node = $('.item.prototype').clone().removeClass('prototype').attr('data-id',id)
-  console.debug("creating node", id)
+  // console.debug("creating node", id)
   insert(node)
   $(':focus').blur()
   node.find('.note').keydown(note_keydown).autogrow({extraSpace:100}).blur(changed_text).keydown(change_countdown)
@@ -204,12 +204,12 @@ function undelete_tree(data){
   else                    $('.root').prepend(item)
   focus_item(item)
 
-  console.debug('undeleting')
+  // console.debug('undeleting')
   // if we created a new item to replace it, get rid of that now
   if (data.new_item_id){
     var new_item = find_item(data.new_item_id)
     new_item.remove()
-    console.debug('got the straggler', new_item.get())
+    // console.debug('got the straggler', new_item.get())
   }
   
   emit_event({type:'create_sibling', item:data.item})
