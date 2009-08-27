@@ -99,7 +99,7 @@ function changed_text(event){
   if (old_text != new_text){
     field.attr("data-text", new_text)
     var field_kind = field.hasClass('title') ? 'title' : 'note'
-    create_history_item({type:'change', item:item.attr('data-id'), field:field_kind, old_text:old_text, new_text:new_text})      
+    emit_event({type:'change', item:item.attr('data-id'), field:field_kind, old_text:old_text, new_text:new_text})      
   }
 }
 
@@ -113,8 +113,6 @@ function stop(event){
 // This is useful when we need to generate a text-changed event yet the user
 // has not deselected the text box yet.  Also used when blur() doesn't fire properly.
 function faniggle_text(){
-  console.debug(events)
-  // console.debug("faniggled")
   var field = $(':focus')
   field.blur()
   field.focus()

@@ -31,6 +31,8 @@ textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
 </script> -->
 <script src="controls.js"></script>
 <script src="actions.js"></script>
+<script src="history.js"></script>
+<script src="persistence.js"></script>
 <script src="jquery-1.3.2.js"></script>
 <script src="jquery.autogrow.js"></script>
 <script src="jquery.json-2.2.js"></script>
@@ -38,11 +40,21 @@ textarea {line-height:1em; border:1px solid #ccc; display:block; width:100%;
 // Undo + Persistence
 
 var storage_method = null
+var persistence
 $(document).ready(function(){
   $(window).keydown(window_keydown)
   init_empty()
+  persistence = new LocalStoragePersistence()
+
+  history_mode = true
+  while (true){
+    var event = persistence.restore()
+    if (event) forward_events[event.type](event)
+    else break    
+  }
+  history_mode = false
   
-  read_persistent_data()
+  // read_persistent_data()
 })
 </script>
 
