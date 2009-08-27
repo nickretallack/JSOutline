@@ -7,8 +7,10 @@
 
 - persistence
   + localStorage
-    - invalidate redo history
-  + cookies?
+    - show space remaining
+    + invalidate redo history
+  + cookies
+    - show space remaining
   - gears
   - flashStorage
   - html page
