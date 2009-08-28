@@ -17,6 +17,8 @@ textarea, .autogrow > div {line-height:inherit; border:1px solid #ccc; display:b
 
 .controls {-webkit-column-width:15em; -moz-column-width:15em;}
 
+a {color:blue; text-decoration:none;}
+a:hover {cursor:pointer; text-decoration:underline;}
 /* Borders */
 .title {-webkit-border-radius:4pt 4pt 0 0; -moz-border-radius:4pt 4pt 0 0;}
 .note  {-webkit-border-radius:0 0 4pt 4pt; -moz-border-radius:0 0 4pt 4pt;}
@@ -42,7 +44,7 @@ textarea, .autogrow > div {line-height:inherit; border:1px solid #ccc; display:b
 <script src="actions.js"></script>
 <script src="history.js"></script>
 <script src="persistence.js"></script>
-
+<script src="export.js"></script>
 <script type="text/javascript">
 // Undo + Persistence
 
@@ -55,12 +57,14 @@ $(document).ready(function(){
   persistence = preferred_storage_engine()
   restore(persistence)
   $('.storage').text("Storage: "+persistence.name)
+  $('.export .html').click(export_html)
+  $('.export .creole').click(export_creole)
 })
 </script>
 
 
 </head><body>
-<span class="storage"></span>
+<span class="storage"></span> <span class="export">Export: <a class="html">html</a> <a class="creole">creole</a></span>
   <ul class="controls">
     <li>Enter: New Sibling
     <li>Shift+Enter: Edit Note/Title

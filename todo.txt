@@ -1,3 +1,9 @@
+- actions redesign
+  - put all the key bindings into one map
+  - make a separate map (set) for each context to verify the event can be done now
+
+
+
 - exports / imports!
   - creole
   - textile  
@@ -9,8 +15,10 @@
 
 - focus on single or set of nodes?
 
+
 - redesign
   + events inside persistence
+  - use classes instead of attrs for speed
   - should change convention from data.item to data.item_id
   - make key controls configurable
     - keystroke editor
