@@ -1,3 +1,14 @@
+- exports / imports!
+  - creole
+  - textile  
+  - html
+  - plain text
+  
+- shrink/grow argh
+  - implement like jquery autogrow, but just use one div
+
+- focus on single or set of nodes?
+
 - redesign
   + events inside persistence
   - should change convention from data.item to data.item_id
@@ -16,11 +27,14 @@
   - html page
   - url/hash
   - server-side (premium?)
+  - allow you to switch storage methods at runtime, porting over stuff?  remember which one?
 
 - reliability
-  - test test :B
+  - shit, it's possible to screw up your history
+  
 
 - todo_item functionality
+  - mark as task or reference
   - check off tasks
   - clean up button
   - show/hide finished tasks
@@ -30,6 +44,9 @@
   - make an icon on my website
 
 - other useful commands 
+  - create child
+  - create parent
+  - fold all (top level)
   - Group -- how would I implement this in text mode, adopt siblings?
   - If delete_reparent is useful, find a way to undo it gracefully.  It's so destructive!
   - move to next/previous parent

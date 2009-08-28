@@ -175,8 +175,8 @@ function create_an_item(insert, id){
   // console.debug("creating node", id)
   insert(node)
   $(':focus').blur()
-  node.find('.note').keydown(note_keydown).autogrow({extraSpace:100}).blur(changed_text).keydown(change_countdown)
-  node.find('.title').keydown(title_keydown).focus().blur(changed_text).keydown(change_countdown)  
+  node.find('.note').keydown(note_keydown).blur(changed_text).keydown(change_countdown)
+  node.find('.title').keydown(title_keydown).focus().blur(changed_text).keydown(change_countdown)
   return node
 }
 
@@ -220,6 +220,7 @@ function change_text(data){
   var field = item.find('.'+data.field+':first')
   field.val(data.new_text)
   field.attr('data-text', data.new_text)
+  grow_field(field)
   field.focus()
   emit_event({type:'change', item:data.item, field:data.field, old_text:data.old_text, new_text:data.new_text})
 }

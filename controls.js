@@ -7,6 +7,8 @@ var keys = {enter:13, tab:9, up:38, down:40, left:37, right:39, del:8}
 function title_keydown(event){
   var item = $(this).parents('.item:first')
 
+  grow_field(this)
+  
   if(event.which == keys.enter){
     stop(event)
     if      (event.shiftKey)  {
@@ -76,15 +78,33 @@ function window_keydown(event){
   }
 }
 
+function grow_field(field, character){
+    field = $(field)
+    var temp_field
+    if (field.hasClass('.note')) temp_field = $('.autogrow .note')
+    else temp_field = $('.autogrow .title')
 
-function note_keydown(event){
+    var text = field.val()
+    if (character == keys.enter) text += "\n"
+    if (character == keys.del) text = text.substring(0, text.length-1)
+    text += "."
+    // if (!character) text += "x"
+
+    temp_field.text(text)
+    console.debug(temp_field.height())
+    field.css('height',temp_field.height())    
+}
+
+
+function note_keydown(event){  
   if(event.which == keys.enter){
     if (event.shiftKey){
       stop(event)
       var item = $(this).parents('.item:first')
-      focus_item(item)
+      return focus_item(item)
     }
   }
+  grow_field(this, event.which)
 }
 
 // If any text field changes, it needs to be recorded as an event.
