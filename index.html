@@ -50,14 +50,14 @@ a:hover {cursor:pointer; text-decoration:underline;}
 // Undo + Persistence
 
 var storage_method = null
-var persistence
+var action_history
 time_until_autosave = 2000
 $(document).ready(function(){
   $(window).keydown(window_keydown)
   init_empty()
-  persistence = new HistoryRunner(preferred_storage_engine())
-  restore(persistence)
-  $('.storage').text("Storage: "+persistence.name)
+  action_history = new History(preferred_storage_engine())
+  restore(action_history)
+  $('.storage').text("Storage: "+action_history.name)
   $('.export .html').click(export_html)
   $('.export .creole').click(export_creole)
 })

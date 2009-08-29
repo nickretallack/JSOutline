@@ -1,4 +1,4 @@
-function HistoryRunner(storage){
+function History(storage){
   var event_count = storage.get('event_count') || 0
   var current_event = storage.get('current_event') || 0
 
@@ -20,7 +20,11 @@ function HistoryRunner(storage){
     if (current_event <= 0) return null
     current_event -= 1
     store_meta(false)
-    return storage.get("event-"+current_event)
+    
+    var event = storage.get("event-"+current_event)
+    history_mode = true
+    reverse_events[event.type](event)
+    history_mode = false
   }
   
   this.redo = function(){
@@ -48,7 +52,28 @@ function HistoryRunner(storage){
   
   this.space = storage.space()
   this.name = storage.name
+  
+  this.debug = function(){
+    var events = []
+    for(var x = 0; x < event_count; x++) events.push(storage.get("event-"+x))
+    console.debug(events)
+  }
 }
+
+function undo(){
+  faniggle_text()
+  action_history.undo()
+}
+
+// Reverses actions again that were previously reversed, hence returning to normal
+function redo(){
+  history_mode = true
+  event = action_history.redo()
+  if (event) forward_events[event.type](event)  
+  history_mode = false
+}
+
+
 
 
 // These really need some better names
@@ -62,15 +87,15 @@ var reverse_mode = false
 // Should we make use of the persistence layer for event history directly?  I mean..
 // We are duplicating information here after all.
 function emit_event(data){
-  if (!history_mode) persistence.doit(data)
+  if (!history_mode) action_history.doit(data)
 }
 
-// When in history mode, you don't invalidate the undone events history by generating an event
-function reverse_event(event){
-  history_event = true
-  reverse_events[event.type](event)
-  history_event = false    
-}
+// // When in history mode, you don't invalidate the undone events history by generating an event
+// function reverse_event(event){
+//   history_mode = true
+//   reverse_events[event.type](event)
+//   history_mode = false    
+// }
 
 // How to re-play events from hard storage
 var forward_events = {
@@ -101,18 +126,10 @@ var reverse_events = {
   change:unchange_text
 }
 
-var redo_events = {
-  
-  
-  
-  
-  
-}
-
-function restore(persistence){
+function restore(action_history){
   history_mode = true
   while (true){
-    var event = persistence.restore()
+    var event = action_history.restore()
     if (event) forward_events[event.type](event)
     else break    
   }
