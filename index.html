@@ -55,7 +55,7 @@ time_until_autosave = 2000
 $(document).ready(function(){
   $(window).keydown(window_keydown)
   init_empty()
-  persistence = preferred_storage_engine()
+  persistence = new HistoryRunner(preferred_storage_engine())
   restore(persistence)
   $('.storage').text("Storage: "+persistence.name)
   $('.export .html').click(export_html)
