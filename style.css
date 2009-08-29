@@ -1,0 +1,24 @@
+html {font-family:helvetica; font-size:.8em;}
+.root {position:relative;}
+.prototype, .dead, .folded .contents {display:none !important;}
+.autogrow > div {white-space:pre-wrap; height:auto !important;}
+.item {margin:.5ex 0; display:block;}
+.title {font-weight:bold; height:1.1em;}
+.note { height:1.1em; font-size:.8em !important; border-top:0;}
+
+.autogrow {position:absolute; left:-9999999px; top:0;}
+
+textarea, .autogrow > div {line-height:inherit; border:1px solid #eee; display:block; width:100%;
+  font-family:inherit; font-size:inherit; margin:0; max-width:500pt; overflow-y:hidden; height:inherit;}
+
+.controls {-webkit-column-width:15em; -moz-column-width:15em;}
+
+a {color:blue; text-decoration:none;}
+a:hover {cursor:pointer; text-decoration:underline;}
+/* Borders */
+.title {-webkit-border-radius:4pt 4pt 0 0; -moz-border-radius:4pt 4pt 0 0;}
+.note  {-webkit-border-radius:0 0 4pt 4pt; -moz-border-radius:0 0 4pt 4pt;}
+.title, .note {padding:0 2pt; min-height:1.2em;}
+.title {padding-bottom:0;}
+.note {padding-top:0;}
+.folded {border-bottom:1px dashed gray; padding-bottom:.5ex; }

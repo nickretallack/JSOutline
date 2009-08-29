@@ -1,0 +1,9 @@
+{
+  "betaManifestVersion": 1,
+  "version": "1.0",
+  "entries": [
+      { "url": "index.html"},
+      { "url": "jquery-1.3.2.js"},
+      { "url": "gears_init.js"}
+    ]
+}
