@@ -1,44 +1,7 @@
 var keys = {enter:13, tab:9, up:38, down:40, left:37, right:39, del:8}
-var codes = {}
-for (var key in keys){
-  codes[keys[key]] = key
-}
-console.debug(codes)
+var codes = key_value_swap(keys)
 
-
-// This should all be refactored to allow custom key bindings.
-// Store those along with the other persistence method used.
-
-function doit(action){
-  var fun = eval(action.type)
-  if (action.item_id) {
-    console.debug(action.type)
-    var item = find_item(action.item_id)  
-    fun(item)
-  } else {
-    console.debug(action.type)
-    fun()
-  }
-}
-
-
-
-function modifiers(event){
-  if (event.shiftKey) return 'shift+'
-  if (event.altKey) return 'alt+'
-  if (event.ctrlKey) return 'ctrl+'
-  return ''
-}
-
-function focus_prev_sibling(item){
-  focus_item(item.prev())
-}
-
-function focus_next_sibling(item){
-  focus_item(item.next())
-}
-
-var title_keys = { 
+var key_commands = { 
   'enter'       :'create_sibling',
   'shift+enter' :'toggle_note_view',
   'alt+enter'   :'toggle_fold_item',
@@ -56,76 +19,51 @@ var title_keys = {
   'shift+up'    :'move_up',
   'shift+down'  :'move_down',
   
-  'alt+del'     :'delete_tree'
-}
+  'alt+del'     :'delete_tree',
 
-var window_keys = {
-  // 'enter'       :'create_root_child',
   'alt+left'    :'undo',
   'alt+right'   :'redo',
-  'up'          :'focus_last',
-  'down'        :'focus_first'
 }
 
-var note_keys = {
-  'shift+enter' :'toggle_note_view'
-}
+var title_actions = set(['create_sibling','toggle_note_view','toggle_fold_item','indent','dedent',
+  'focus_prev','focus_next','focus_prev_sibling','focus_next_sibling','move_up','move_down','delete_tree'])
 
-// TODOOOOOOOOOOOOOOOOOOOO  NEEDS BLUR
-function toggle_note_view(item){
-  if ($(':focus').hasClass('note')) focus_item(item)
-  else item.find('.note:first').focus()
-}
+var window_actions = set(['undo','redo','focus_last','focus_first'])
+var note_actions = set(['toggle_note_view'])
 
-
-// Most of the time, you have an item title focused.
 function title_keydown(event){
   var item = $(this).parents('.item:first')
-
   grow_field(this)
-  
-  var key_command = modifiers(event) + codes[event.which]
-  var command = title_keys[ key_command ]
-  if (command) {
-    stop(event)
-    return doit({type:command, item_id:item.attr('data-id')})
-  }
+  try_key_command(event, title_actions, item)
 }
 
-function note_keydown(event){  
-  if(event.which == keys.enter){
-    if (event.shiftKey){
-      stop(event)
-      var item = $(this).parents('.item:first')
-      return focus_item(item)
-    }
-  }
-  grow_field(this, event.which)
+function note_keydown(event){
+  var item = $(this).parents('.item:first')
+  grow_field(this)
+  try_key_command(event, note_actions, item)
 }
 
-// When nothing is selected, fall back to these controls
 function window_keydown(event){
+  try_key_command(event, window_actions)
+}
+
+
+function try_key_command(event, actions, item){
   var key_command = modifiers(event) + codes[event.which]
-  var command = window_keys[ key_command ]
-  if (command) {
-    if (!$(':focus').length) {
-      if (command == 'create_root_child'){
-        stop(event)
-        return create_sibling($('.root > .item:last'))
-
-      } else if (command == "focus_last"){
-        stop(event)
-        return focus_item($('.root > .item:last'))
-
-      } else if (command == "focus_first"){
-        stop(event)
-        return focus_item($('.root > .item:first'))
-      }      
-    }
+  var action = key_commands[ key_command ]
+  if (action && actions[action]) {
     stop(event)
-    return doit({type:command})
+    var action_data = {type:action}
+    if (item) action_data['item_id'] = item.attr('data-id')
+    return doit(action_data)
   }
-  
+}
+
+function modifiers(event){
+  if (event.shiftKey) return 'shift+'
+  if (event.altKey) return 'alt+'
+  if (event.ctrlKey) return 'ctrl+'
+  return ''
 }
 
 function grow_field(field, character){
@@ -146,8 +84,16 @@ function grow_field(field, character){
     field.css('height',temp_field.height())    
 }
 
-
-
+// TODO: check that action.type is valid
+function doit(action){
+  var fun = eval(action.type)
+  if (action.item_id) {
+    var item = find_item(action.item_id)  
+    fun(item)
+  } else {
+    fun()
+  }
+}
 
 // If any text field changes, it needs to be recorded as an event.
 // This is bound on the 'blur' event and manually called because blur seems to be broken.
@@ -175,7 +121,6 @@ function stop(event){
 // This is useful when we need to generate a text-changed event yet the user
 // has not deselected the text box yet.  Also used when blur() doesn't fire properly.
 function faniggle_text(){
-  // console.debug("faniggled")
   var field = $(':focus')
   field.blur()
   field.focus()

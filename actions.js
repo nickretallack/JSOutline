@@ -3,6 +3,7 @@
 // TODO: refactor this into two forms, making use of shared code.
 function create_sibling(item, id){
   var node = create_an_item(function(node){ item.after(node) }, id)
+  if (!item) item = $('.root .item:last')
   emit_event({type:'create_sibling', item:node.attr('data-id'), prev:item.attr('data-id')})
 }
 
@@ -29,6 +30,8 @@ function dedent(item){
 // Focus the item that is vertically above the current item
 // perhaps it should be called focus_up?  nah
 function focus_prev(item){
+  if (!item) return focus_item('.root .item:last')
+  
   var prev = item.prev('.item:first') // find prev sibling
   if (prev.length) {
     while (true){
@@ -46,6 +49,8 @@ function focus_prev(item){
 
 // Focus the item that is vertically below the current item
 function focus_next(item){
+  if (!item) return focus_item('.root .item:first')
+  
   var next
   if (!item.hasClass('.folded')) next = item.find('.item:first') // prefer first child
   if (!next || !next.length) next = item.next() // settle for next sibling
@@ -160,6 +165,20 @@ function redo(){
   event = persistence.redo()
   if (event) forward_events[event.type](event)  
   history_mode = false
+}
+
+function focus_prev_sibling(item){
+  focus_item(item.prev())
+}
+
+function focus_next_sibling(item){
+  focus_item(item.next())
+}
+
+// TODOOOOOOOOOOOOOOOOOOOO  NEEDS BLUR
+function toggle_note_view(item){
+  if ($(':focus').hasClass('note')) focus_item(item)
+  else item.find('.note:first').focus()
 }
 
 ///////////////////////////////// ACTION UTILITIES ////////////////////////////////////////////
