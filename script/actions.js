@@ -16,9 +16,13 @@ function dispatch_action(action){
 }
 
 function restore(action_history){
+  var version = action_history.storage.get("version")
+  action_history.storage.set("version","1")
+  // possibly do some repair work based on the version
+
   action_history.restore(function(action){
     dispatch_action(action)
-  })
+  })  
 }
 
 reverse_actions = {
@@ -72,9 +76,16 @@ function delete_tree(data){ // Delete a node and all sub-nodes, moving them to p
   action_history.record(history_data)
 }
 
-
 function indent(data){
   var item = find_item(data.item_id)
+  
+  if (data.prev_item_id){ // we're undo-ing a dedent
+    var old_prev = find_item(data.prev_item_id)
+    console.debug(old_prev.get())
+    old_prev.after(item)
+    return focus_item(item)
+  }
+
   var prev = item.prev()
   if (prev.length && !prev.hasClass('folded')){
     item.appendTo(prev.find('.contents:first'))
@@ -86,10 +97,13 @@ function indent(data){
 function dedent(data){
   var item = find_item(data.item_id)
   var parent = item.parents('.item:first')
+  var prev = item.prev()
   if (parent.length){
     parent.after(item)
     focus_item(item)
-    action_history.record({type:'dedent', item_id:data.item_id})
+    var action_data = {type:'dedent', item_id:data.item_id}
+    if (prev.length) action_data['prev_item_id'] = prev.attr('data-id')
+    action_history.record(action_data)
   }
 }
 

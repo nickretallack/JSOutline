@@ -1,5 +1,6 @@
-maybe it just makes sense to have a separate list of key bindings for each situation.  I mean,
-you might have different commands at the window level.  focus_last, for example.
+- version variable, use it in 'restore' to not mess things up when events change
+
+- test in IE
 
 - Oh shit, undo/redo on indent/dedent isn't accurate!
   - dedenting causes it to lose its place.  It should remember where it was before so it can un-dedent correctly.
