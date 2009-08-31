@@ -62,7 +62,6 @@ function keydown(event, commands, field){
     stop(event)
     var action_data = {type:action}
     if (field) action_data['item_id'] = $(field).parents('.item:first').attr('data-id')
-    console.debug(action_data)
     dispatch_action(action_data)
   } else if (field) grow_field(field, event.which)  
 }
