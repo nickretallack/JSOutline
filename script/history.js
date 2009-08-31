@@ -62,7 +62,7 @@ function History(storage){
   }
   
   this.storage = storage
-  this.storage_space = storage.space()
+  this.storage_space = storage.space
   this.storage_name = storage.name
   
   this.debug = function(){

@@ -17,7 +17,7 @@
 var action_history
 time_until_autosave = 2000
 $(document).ready(function(){
-  $(window).keydown(window_keydown)
+  $(window).keydown(window_keydown).keydown(unfocused_keydown)
   init_empty()
   action_history = new History(preferred_storage_engine())
   restore(action_history)

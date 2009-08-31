@@ -38,7 +38,9 @@ var note_commands = {
 var window_commands = {
   'alt+left'    :'undo',
   'alt+right'   :'redo',
-  
+}
+
+var unfocused_commands = {
   'up'          :'focus_last',
   'down'        :'focus_first',
 
@@ -46,12 +48,12 @@ var window_commands = {
 }
 
 
-
 /////////////////////////////////// EVENT HANDLERS ///////////////////////////
 
 function title_keydown  (event){ keydown(event, title_commands, this) }
 function note_keydown   (event){ keydown(event, note_commands,  this) }
 function window_keydown (event){ keydown(event, window_commands     ) }
+function unfocused_keydown (event){ if(!$(':focus').length) keydown(event, unfocused_commands     ) }
 
 function keydown(event, commands, field){
   var key_command = modifiers(event) + codes[event.which]
@@ -60,6 +62,7 @@ function keydown(event, commands, field){
     stop(event)
     var action_data = {type:action}
     if (field) action_data['item_id'] = $(field).parents('.item:first').attr('data-id')
+    console.debug(action_data)
     dispatch_action(action_data)
   } else if (field) grow_field(field, event.which)  
 }
@@ -104,6 +107,16 @@ function grow_field(field, character){
   temp_field.text(text)
   field.css('height',temp_field.height())    
 }
+
+
+
+// function grow_field(textArea){
+//   while ( textArea.rows > 1 && textArea.scrollHeight < textArea.offsetHeight ) textArea.rows--
+//   while (textArea.scrollHeight > textArea.offsetHeight) textArea.rows++
+//   textArea.rows++
+// }
+
+
 
 function stop(event){
   event.preventDefault()
