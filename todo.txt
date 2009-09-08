@@ -1,18 +1,130 @@
+Hm.  first, the instructions at the top are a good idea, but I don't
+see instructions for adding a child.
+
+I like the export buttons.  an 'import' would be useful.   (especially
+if I could put the 'input' stuff on the GET string)
+
+- import/export AT
+  - root
+  - current node
+
+
+-- Context Ideas
+  - first word verbs, like "read this" or "call fred"
+  - @locations, mappable, solve traveling salesman for you :D
+  - times and durations: 3pm-5pm availability, 3hr duration
+  - #tags for generic use
+  - what about start/due dates?
+
+
+- sidebar
+  - in: import formats
+  - out: export, print
+  - temp save: cookies, localstorage
+  - controls
+  - intro: what this is
+
+- give it a name
+  - outline anywhere
+  - break it down
+  - task slicer
+  - extra-mind
+  - brain dump
+  - task tree
+  - daruma
+    
+- node ids need to be guids
+
+- publish
+  - snapshots : show the document as is, don't auto-update it
+    - save new snapshot
+      x remember what event it's on, and request newer?  what about undos...  That'd need a tree. nm
+      - just send all the events, or the current layout
+    - overwrite old snapshot of the same document
+  - live : keep updating as you make changes, via orbited
+
+
+- basic history improvements
+  - since I have undo, it would be possible to render the final product and then step backward
+  - collaborators have one shared history, as if they were the same person
+  - what about race conditions?  Due to latency/offline, one user could think their event was first
+    - urk, how do events stitch together?  What event count are we on?
+
+
+- history tree
+  - when you undo, you're really just stepping back in time, like in google wave
+  - 
+  - what about merging?
+
+
+- work on a background web sync that integrates with history
+- publish snapshot vs publish live
+
+- is there an event for when you navigate away so I can call faniggle text?
+
+- undos..  uh, only one undo history, everyone shares it, I guess.  Not designed for multiple collaborators at once =[
+Actually, I guess it could produce a tree-like multiple histories thing that you could then merge on...
+and you'd be able to step through the histories on all paths.  urk, complicated
+
+
 - version variable, use it in 'restore' to not mess things up when events change
+- add a 'context' parameter to History so you can have multiple instances
+  -test
+
+- import from creole too =]
+
+- different undo histories when networked...
+  - look at what getdropbox.com does
+  
+- launch and target at the gtd crowd - 43folders
+
+- revenue model
+  - iphone app, pay
+  - kono live collaborative software
+  - thymer.com
+  hiveminder, remember the milk
+  - charge for analytics?
+  - put it on amazon web services?
+  - donation button.  For donation, you get some stuff?
+    - weekly backup emails?
+
+- just launch it.  Ok, I'll launch it.
+  - email 43 folders
+  - make a road map
+  
+  - get email addresses somehow...  newsletter?
+  
+- read agile
+
+- add follow-up actions.  Checking off the group doesn't necessarily check off all children.  Needs to have a way
+  to say that one action is a prerequisite for another.
+  
+
+- import/export to
+  - print!
+  - ical
+    set your most important tasks?
+  - outlook
+    - every category at root, tasks as children
+  - omnifocus
+    
+
+- control config should be a web feature
+- Launch it, let other people do your work for you
+- let people use this as an open source project, and then make the web service for it.
 
 - test in IE
 
-- Oh shit, undo/redo on indent/dedent isn't accurate!
-  - dedenting causes it to lose its place.  It should remember where it was before so it can un-dedent correctly.
+- use classes instead of attrs for speed
 
-- redesign
-  - use classes instead of attrs for speed
-  - make key controls configurable
+- publicity
+  - post on my blog
+  - make an icon on my website
 
 - persistence
-  - show space remaining
   - gears
   - flashStorage
+  - show space remaining
   - url/hash
   - server-side (premium?)
   - allow you to switch storage methods at runtime, porting over stuff?  remember which one?
@@ -22,19 +134,22 @@
   - check off tasks
   - clean up button
   - show/hide finished tasks
+  - criteria (or flip these around)
+    - duration:   short, medium, long
+    - importance: urgent, ordinary, someday
+    - energy:     high, medium, low
 
-- publicity
-  - post on my blog
-  - make an icon on my website
 
 - other useful commands 
-  - create child
-  - create parent
+  - create child - alt-enter
+  - create parent - ctrl-enter
+  - create previous child - shift-enter
   - fold all (top level)
   - Group -- how would I implement this in text mode, adopt siblings?
   - If delete_reparent is useful, find a way to undo it gracefully.  It's so destructive!
   - move node to next/previous parent
   - focus on single or set of nodes?
+
 
 - silly ideas
   - ncurses client
@@ -50,3 +165,27 @@ this autogrow library stinks: it's ignoring my options, and it only grows every 
 Dude, I could totally make an ncurses client for this :P
 
 make an omnifocus merging tool
+
+- shoes client?
+
+-- needs delay / tickler file feature
+-- minimize notes?
+
+--- omnifocus stuff
+My Own GTD App
+Could end up saving a spark for reference
+Design a planing software based on the criteria for doing tasks. easily rate by energy, etc. 
+Make in shoes, sync to web 
+Should be able to import from the OmniFocus database.
+Hm.  The Inbox isn't even supposed to be like tasks.
+Call my GTD app "Outline Anywhere"
+Mock up this behavior in JavaScript!
+Should have a place to put some "guidelines"
+Make a wiki todo that can show you a nice summary, even tag tasks with context info
+When showing search results, show a summary of the parent nodes above each one
+Here's a heading, etc. make some nice written tutorials for real: ) I like writing
+
+Another criterion for my gtd: what time of day
+Why can't I outline everywhere?
+Daruma checlbox theme
+Consider making a task list plugin for DokuWiki or some other wiki

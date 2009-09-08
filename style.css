@@ -1,3 +1,6 @@
+dt,dd,dl {display:inline; margin:0; padding:0;}
+/*dd {display:inline;}*/
+
 html {font-family:helvetica; font-size:.8em;}
 .root {position:relative;}
 .prototype, .dead, .folded .contents {display:none !important;}
@@ -11,7 +14,12 @@ html {font-family:helvetica; font-size:.8em;}
 textarea, .autogrow > div {line-height:inherit; border:1px solid #eee; display:block; width:100%;
   font-family:inherit; font-size:inherit; margin:0; max-width:500pt; overflow-y:hidden; height:inherit;}
 
-.controls {-webkit-column-width:15em; -moz-column-width:15em;}
+/*.controls {-webkit-column-width:15em; -moz-column-width:15em;}*/
+.controls li {display:inline-block; margin-right:4em;}
+.controls dl {margin-left:1ex; display:block; position:relative;}
+.controls dt {display:block;}
+.controls dd {position:absolute; right:0;}
+.controls td+td {font-weight:bold;}
 
 a {color:blue; text-decoration:none;}
 a:hover {cursor:pointer; text-decoration:underline;}
@@ -22,3 +30,5 @@ a:hover {cursor:pointer; text-decoration:underline;}
 .title {padding-bottom:0;}
 .note {padding-top:0;}
 .folded {border-bottom:1px dashed gray; padding-bottom:.5ex; }
+
+h3 {margin:0;}

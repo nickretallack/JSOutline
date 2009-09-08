@@ -32,26 +32,50 @@ $(document).ready(function(){
 
 </head><body>
 <span class="storage"></span> <span class="export">Export: <a class="html">html</a> <a class="creole">creole</a> <a class="textile">textile</a> <a class="plaintext">plaintext</a></span>
-  <ul class="controls">
-    <li>Enter: New Sibling
-    <li>Shift+Enter: Edit Note/Title
-    <li>Alt+Enter: Fold/Unfold
-    <li>Alt+Backspace: Delete Tree
-    <!-- <li>Alt+Backspace: Delete -->
-    <li>Up/Down: Navigate Tree
-    <li>Alt+Up/Down: Navigate Siblings
-    <li>Shift+Arrows: Move
-    <li>Alt+Left/Right: Undo/Redo
-  </ul>
+  <ol class="controls">
+    <li><h3>Create</h3>
+      <table>
+        <tr><td>enter<td>after
+        <tr><td>shift+enter<td>before
+        <tr><td>alt+enter<td>child
+        <tr><td>ctrl+enter<td>parent
+      </table>
+    <li><h3>Delete</h3>
+      <table>
+        <tr><td>alt+backspace<td>item
+        <tr><td>ctrl+backspace<td>tree
+      </table>
+    <li><h3>Navigate</h3>
+      <table>
+        <tr><td>up<td>focus up
+        <tr><td>down<td>focus down
+        <tr><td>alt+up<td>focus up siblings
+        <tr><td>alt+down<td>focus down siblings
+      </table>
+    <li><h3>Move</h3>
+      <table>
+        <tr><td>shift+right<td>indent
+        <tr><td>shift+left<td>dedent
+        <tr><td>shift+up<td>move up
+        <tr><td>shift+down<td>move down
+      </table>
+    <li><h3>Edit</h3>
+      <table>
+        <tr><td>ctrl+space<td>note/title
+        <tr><td>alt+space <td>fold/unfold
+        <tr><td>alt+left  <td>undo
+        <tr><td>alt+right <td>redo
+      </table>
+  </ol>
 
-<ul class="root contents"></ul>
+<ol class="root contents"></ol>
 
-<ul class="dead"></ul>
+<ol class="dead"></ol>
 
 <li class="item prototype">
   <textarea class="title" data-text=""></textarea>
   <textarea class="note" data-text=""></textarea>
-  <ul class="contents"></ul>
+  <ol class="contents"></ol>
 </li>
 
 <div class="item autogrow">

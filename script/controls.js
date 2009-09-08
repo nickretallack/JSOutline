@@ -1,9 +1,10 @@
 // User Interaction
 
-var keys = {enter:13, tab:9, up:38, down:40, left:37, right:39, del:8}
+var keys = {enter:13, tab:9, up:38, down:40, left:37, right:39, del:8, space:32}
 var codes = key_value_swap(keys)
 
 function modifiers(event){
+  // intentionally returns the weakest modifier to avoid mistakes.
   if (event.shiftKey) return 'shift+'
   if (event.altKey) return 'alt+'
   if (event.ctrlKey) return 'ctrl+'
@@ -11,28 +12,37 @@ function modifiers(event){
 }
 
 var title_commands = {
+  // Create
   'enter'       :'create_sibling',
-  'shift+enter' :'toggle_note_view',
-  'alt+enter'   :'toggle_fold_item',
+  'shift+enter' :'create_previous_sibling',
+  'alt+enter'   :'create_child',
+  'ctrl+enter'  :'create_parent',
 
-  'tab'         :'indent',
-  'shift+tab'   :'dedent',
-  'shift+right' :'indent',
-  'shift+left'  :'dedent',
+  // Delete
+  'alt+del'      :'delete_item',
+  'ctrl+del'     :'delete_tree',
 
+  // Navigate
   'up'          :'focus_prev',
   'down'        :'focus_next',
   'alt+up'      :'focus_prev_sibling',
   'alt+down'    :'focus_next_sibling',
 
+  'ctrl+space'  :'toggle_note_view',
+  'alt+space'   :'toggle_fold_item',
+
+  // Move
+  'tab'         :'indent',
+  'shift+tab'   :'dedent',
+  'shift+right' :'indent',
+  'shift+left'  :'dedent',
+
   'shift+up'    :'move_up',
-  'shift+down'  :'move_down',
-  
-  'alt+del'     :'delete_tree',
+  'shift+down'  :'move_down',  
 }
 
 var note_commands = {
-  'shift+enter' :'toggle_note_view',  
+  'ctrl+space'  :'toggle_note_view',
 }
 
 var window_commands = {
@@ -41,10 +51,11 @@ var window_commands = {
 }
 
 var unfocused_commands = {
-  'up'          :'focus_last',
-  'down'        :'focus_first',
+  'up'          :'focus_first',
+  'down'        :'focus_last',
 
   'enter'       :'create_sibling',
+  'shift+enter' :'create_previous_sibling',
 }
 
 
@@ -63,7 +74,7 @@ function keydown(event, commands, field){
     var action_data = {type:action}
     if (field) action_data['item_id'] = $(field).parents('.item:first').attr('data-id')
     dispatch_action(action_data)
-  } else if (field) grow_field(field, event.which)  
+  } else if (field) grow_field(field)  
 }
 
 // If any text field changes, it needs to be recorded as an event.
@@ -91,31 +102,16 @@ function change_countdown(event){
 
 //////////////////////////////// MISC //////////////////////////
 
-function grow_field(field, character){
-  if (character == keys.del) return setTimeout(function(){ grow_field(field) })
-  field = $(field)
-
-  var temp_field
-  if (field.hasClass('.note'))  temp_field = $('.autogrow .note' )
-  else                          temp_field = $('.autogrow .title')
-
-  var text = field.val()
-  if (character == keys.enter) text += "\n"
-  text += "MM"
-
-  temp_field.text(text)
-  field.css('height',temp_field.height())    
+function grow_field(field){
+  var field = $(field)
+  setTimeout(function(){
+    var temp_field
+    if (field.hasClass('.note'))  temp_field = $('.autogrow .note' )
+    else                          temp_field = $('.autogrow .title')
+    temp_field.text(field.val() + " MM")
+    field.css('height', temp_field.height())
+  })
 }
-
-
-
-// function grow_field(textArea){
-//   while ( textArea.rows > 1 && textArea.scrollHeight < textArea.offsetHeight ) textArea.rows--
-//   while (textArea.scrollHeight > textArea.offsetHeight) textArea.rows++
-//   textArea.rows++
-// }
-
-
 
 function stop(event){
   event.preventDefault()
